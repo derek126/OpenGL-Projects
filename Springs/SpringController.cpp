@@ -58,7 +58,7 @@ void SpringController::Update(const GLdouble& dt)
 	// Apply external forces to the spring mesh masses
 	for (GLuint j = 0; j < SizeY; j++)
 	{
-		glm::vec3 Force = glm::vec3(5.f * glm::sin(accum), -15.f, 25.f * glm::sin(accum));
+		glm::vec3 Force = glm::vec3(0.f, -15.f, 25.f * glm::sin(accum));
 		for (GLint i = 0; i < SizeX; i++)
 		{
 			MeshGrid[i][j]->ApplyForce(Force); // Apply external forces
