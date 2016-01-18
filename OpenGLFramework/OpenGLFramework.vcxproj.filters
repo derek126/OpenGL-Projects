@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="Shader.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Drawable.cpp">
+      <Filter>Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Cube.cpp">
+      <Filter>Primitives</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameManager.h" />
+    <ClInclude Include="GameController.h" />
+    <ClInclude Include="Shader.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Drawable.h">
+      <Filter>Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Primitives</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{d424dda5-0db7-4264-8bbf-7a9fde8b38fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Primitives">
+      <UniqueIdentifier>{dfc7987a-c954-471b-8336-cf086bfce598}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

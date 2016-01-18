@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="SpringController.cpp" />
+    <ClCompile Include="PointMass.cpp" />
+    <ClCompile Include="Spring.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="basic.vs" />
+    <None Include="basic.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SpringController.h" />
+    <ClInclude Include="PointMass.h" />
+    <ClInclude Include="Spring.h" />
+  </ItemGroup>
+</Project>
