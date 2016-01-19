@@ -103,11 +103,11 @@ void FluidController::Render()
 		Voxel->Draw(View, Projection);
 	};
 
-	for (GLint i = 0; i < GridSize; i++)
+	for (GLuint i = 0; i < GridSize; i++)
 	{
-		for (GLint j = 0; j < GridSize; j++)
+		for (GLuint j = 0; j < GridSize; j++)
 		{
-			for (GLint k = 0; k < GridSize; k++)
+			for (GLuint k = 0; k < GridSize; k++)
 			{
 				/*if (Grid[i][j][k] >= 1.f)
 				{
@@ -171,15 +171,15 @@ GLfloat FluidController::GridToWorldZ(const GLuint& gz) const
 
 GLuint FluidController::WorldToGridX(const GLfloat& wx) const
 {
-	return wx / Scale;
+	return static_cast<GLuint>(wx / Scale);
 }
 
 GLuint FluidController::WorldToGridY(const GLfloat& wy) const
 {
-	return wy / Scale;
+	return static_cast<GLuint>(wy / Scale);
 }
 
 GLuint FluidController::WorldToGridZ(const GLfloat& wz) const
 {
-	return wz / Scale;
+	return static_cast<GLuint>(wz / Scale);
 }
