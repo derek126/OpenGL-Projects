@@ -56,7 +56,7 @@ void SpringController::Update(const GLdouble& dt)
 	if (accum < 2.5f) return; // Wait for the scene to fully load
 
 	// Apply external forces to the spring mesh masses
-	for (GLuint j = 0; j < SizeY; j++)
+	for (GLint j = 0; j < SizeY; j++)
 	{
 		glm::vec3 Force = glm::vec3(0.f, -15.f, 25.f * glm::sin(accum));
 		for (GLint i = 0; i < SizeX; i++)
@@ -133,7 +133,7 @@ void SpringController::InitSpringWithDampening()
 
 void SpringController::InitSpringMesh()
 {
-	for (GLuint i = 0; i < SizeX; i++)
+	for (GLint i = 0; i < SizeX; i++)
 	{
 		for (GLint j = -SizeY / 2; j < SizeY / 2; j++)
 		{
@@ -152,7 +152,7 @@ void SpringController::InitSpringMesh()
 
 	const GLfloat Dampening = 1.0f;
 	const GLfloat SpringConstant = 10000.f;
-	for (GLuint i = 0; i < SizeX; i++)
+	for (GLint i = 0; i < SizeX; i++)
 	{
 		for (GLint j = 0; j < SizeY; j++)
 		{
