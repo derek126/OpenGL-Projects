@@ -13,13 +13,16 @@
       <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Drawable.cpp">
-      <Filter>Primitives</Filter>
+      <Filter>Actors\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Quad.cpp">
-      <Filter>Primitives</Filter>
+      <Filter>Actors\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Cube.cpp">
-      <Filter>Primitives</Filter>
+      <Filter>Actors\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>Actors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -35,20 +38,26 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Drawable.h">
-      <Filter>Primitives</Filter>
+      <Filter>Actors\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Quad.h">
-      <Filter>Primitives</Filter>
+      <Filter>Actors\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Cube.h">
-      <Filter>Primitives</Filter>
+      <Filter>Actors\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor.h">
+      <Filter>Actors</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
       <UniqueIdentifier>{d424dda5-0db7-4264-8bbf-7a9fde8b38fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Primitives">
+    <Filter Include="Actors">
+      <UniqueIdentifier>{b44379bb-3434-4f3b-b26c-bf8dd8e575fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actors\Primitives">
       <UniqueIdentifier>{dfc7987a-c954-471b-8336-cf086bfce598}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
