@@ -7,4 +7,8 @@
   <ItemGroup>
     <ClInclude Include="FluidController.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="basic.fs" />
+    <None Include="basic.vs" />
+  </ItemGroup>
 </Project>
