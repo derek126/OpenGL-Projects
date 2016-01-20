@@ -5,11 +5,11 @@
 Quad::Quad()
 {
 	GLfloat vertices[] = {
-		// Positions            // Texture Coords
-		0.5f,  0.5f, 0.0f,		1.0f, 1.0f,   // Top Right
-		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,   // Bottom Right
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,   // Bottom Left
-		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f    // Top Left 
+		// Positions            // Texture Coords   // Normals
+		0.5f,  0.5f, 0.0f,		1.0f, 1.0f,		0.f, 0.f, 1.f,	// Top Right
+		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,		0.f, 0.f, 1.f,	// Bottom Right
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,		0.f, 0.f, 1.f,	 // Bottom Left
+		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f,		0.f, 0.f, 1.f	 // Top Left 
 	};
 
 	GLuint indices[] = {
@@ -37,11 +37,15 @@ Quad::Quad()
 
 	// Vertices
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 
 	// Tex coords
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+
+	// Normals
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
