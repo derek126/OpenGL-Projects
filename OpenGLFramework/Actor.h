@@ -45,7 +45,7 @@ protected:
 	glm::mat4 TranslationMatrix;
 	glm::mat4 RotationMatrix;
 	glm::mat4 ScaleMatrix;
-	glm::mat4 MVPMatrix;
-	GLboolean bMVPChanged;
+	glm::mat4 ModelMatrix;
+	GLboolean bModelChanged;
 };
 
