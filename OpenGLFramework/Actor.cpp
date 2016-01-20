@@ -74,7 +74,7 @@ void Actor::SetScale(const glm::mat4& Scale)
 
 glm::mat4 Actor::GetModelMatrix()
 {
-	if (bMVPChanged)
+	if (bModelChanged)
 	{
 		ModelMatrix = TranslationMatrix * RotationMatrix * ScaleMatrix;
 		bModelChanged = GL_FALSE;
