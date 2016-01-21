@@ -41,7 +41,7 @@ void SpringController::Initialize()
 	glEnable(GL_DEPTH_TEST);
 
 	// Initialize the shader to be used for the masses
-	RESOURCEMANAGER.LoadShader("basic.vs", "basic.fs", nullptr, "Basic");
+	RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Phong");
 
 	// Setup the springs in the scene
 	InitSpring();
@@ -89,11 +89,11 @@ void SpringController::Render()
 	{
 		if (Mass->IsFixedPoint())
 		{
-			RESOURCEMANAGER.GetShader("Basic").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
+			RESOURCEMANAGER.GetShader("Phong").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 		}
 		else
 		{
-			RESOURCEMANAGER.GetShader("Basic").SetVector3f("Color", glm::vec3(1.0f, 0.5f, 0.2f), true);
+			RESOURCEMANAGER.GetShader("Phong").SetVector3f("Color", glm::vec3(1.0f, 0.5f, 0.2f), true);
 		}
 		Mass->Draw();
 	}
@@ -102,12 +102,12 @@ void SpringController::Render()
 void SpringController::InitSpring()
 {
 	PointMass* M1 = new PointMass(1, true);
-	M1->SetShader("Basic");
+	M1->SetShader("Phong");
 	M1->SetTranslation(glm::vec3(-6.f, 4.f, 0.f));
 	Masses.push_back(M1);
 
 	PointMass* M2 = new PointMass(10);
-	M2->SetShader("Basic");
+	M2->SetShader("Phong");
 	M2->SetTranslation(glm::vec3(-6.f, -4.f, 0.f));
 	Masses.push_back(M2);
 
@@ -118,12 +118,12 @@ void SpringController::InitSpring()
 void SpringController::InitSpringWithDampening()
 {
 	PointMass* M1 = new PointMass(1, true);
-	M1->SetShader("Basic");
+	M1->SetShader("Phong");
 	M1->SetTranslation(glm::vec3(-4.f, 4.f, 0.f));
 	Masses.push_back(M1);
 
 	PointMass* M2 = new PointMass(20);
-	M2->SetShader("Basic");
+	M2->SetShader("Phong");
 	M2->SetTranslation(glm::vec3(-4.f, -4.f, 0.f));
 	Masses.push_back(M2);
 
@@ -139,7 +139,7 @@ void SpringController::InitSpringMesh()
 		{
 			// Make the top two rows static
 			PointMass* M = (j >= SizeY / 2 - 2) ? new PointMass(1, true) : new PointMass(10);
-			M->SetShader("Basic");
+			M->SetShader("Phong");
 
 			M->SetTranslation(glm::vec3(i * 0.05f + 3.f, j * 0.05f + 0.5f, 0.f));
 			M->SetScale(glm::vec3(0.025f, 0.025f, 0.025f));

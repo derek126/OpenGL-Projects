@@ -133,8 +133,8 @@
     <ClInclude Include="FluidController.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic.fs" />
-    <None Include="basic.vs" />
+    <None Include="phong.fs" />
+    <None Include="phong.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

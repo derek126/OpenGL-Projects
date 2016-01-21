@@ -7,8 +7,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic.vs" />
-    <None Include="basic.fs" />
+    <None Include="phong.fs" />
+    <None Include="phong.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SpringController.h" />

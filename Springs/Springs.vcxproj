@@ -131,8 +131,8 @@
     <ClCompile Include="SpringController.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic.fs" />
-    <None Include="basic.vs" />
+    <None Include="phong.fs" />
+    <None Include="phong.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PointMass.h" />

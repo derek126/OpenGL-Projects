@@ -10,13 +10,6 @@
 
 #define RESOURCEMANAGER ResourceManager::GetInstance()
 
-// Global data for shaders stored in UBO
-struct SceneData
-{
-	glm::mat4 View;
-	glm::mat4 Projection;
-};
-
 /**
 * Singleton object used to manage all shaders and 2D textures in our game
 */
@@ -52,6 +45,13 @@ public:
 	void Clear();
 
 private:
+
+	// Global data for shaders stored in UBO
+	struct SceneData
+	{
+		glm::mat4 View;
+		glm::mat4 Projection;
+	};
 
 	// Has the UBO been initialized?
 	GLboolean bIsUBOInit;
