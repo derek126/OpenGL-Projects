@@ -64,7 +64,7 @@ void Quad::Draw()
 {
 	// Set the MVP matrices for the shader
 	RESOURCEMANAGER.GetShader(ShaderName).Use();
-	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("model", GetModelMatrix());
+	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("Model", GetModelMatrix());
 
 	// Bind the texture
 	RESOURCEMANAGER.GetTexture(TextureName).Bind();

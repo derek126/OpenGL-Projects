@@ -43,7 +43,7 @@ void FluidController::Initialize()
 
 	// Initialize the shader to be used for the masses
 	RESOURCEMANAGER.LoadShader("basic.vs", "basic.fs", nullptr, "Basic");
-	RESOURCEMANAGER.GetShader("Basic").SetVector4f("inColor", glm::vec4(0.f, 0.75f, 1.f, 1.f), true);
+	RESOURCEMANAGER.GetShader("Basic").SetVector4f("Color", glm::vec4(0.f, 0.75f, 1.f, 1.f), true);
 
 	Voxel = new Cube();
 	Voxel->SetShader("Basic");

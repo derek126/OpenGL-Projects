@@ -1,16 +1,16 @@
 #version 330 core
   
-layout (location = 0) in vec3 position;
+layout (location = 0) in vec3 Position;
 
 layout (std140) uniform SceneData
 {
-    mat4 projection;
-    mat4 view;
+    mat4 Projection;
+    mat4 View;
 };
 
-uniform mat4 model;
+uniform mat4 Model;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(position.x, position.y, position.z, 1.0);
+    gl_Position = Projection * View * Model * vec4(Position.x, Position.y, Position.z, 1.0);
 }

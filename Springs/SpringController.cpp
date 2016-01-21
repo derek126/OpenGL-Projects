@@ -89,11 +89,11 @@ void SpringController::Render()
 	{
 		if (Mass->IsFixedPoint())
 		{
-			RESOURCEMANAGER.GetShader("Basic").SetVector3f("inColor", glm::vec3(0.f, 0.75f, 1.f), true);
+			RESOURCEMANAGER.GetShader("Basic").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 		}
 		else
 		{
-			RESOURCEMANAGER.GetShader("Basic").SetVector3f("inColor", glm::vec3(1.0f, 0.5f, 0.2f), true);
+			RESOURCEMANAGER.GetShader("Basic").SetVector3f("Color", glm::vec3(1.0f, 0.5f, 0.2f), true);
 		}
 		Mass->Draw();
 	}
