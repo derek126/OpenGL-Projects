@@ -2,8 +2,12 @@
   
 layout (location = 0) in vec3 position;
 
-uniform mat4 view;
-uniform mat4 projection;
+layout (std140) uniform SceneData
+{
+    mat4 projection;
+    mat4 view;
+};
+
 uniform mat4 model;
 
 void main()

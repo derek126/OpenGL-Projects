@@ -51,11 +51,11 @@ GLboolean GameManager::Initialize(GameController* NewController)
 	Window = glfwCreateWindow(DEFAULT_SCREENWIDTH, DEFAULT_SCREENHEIGHT, Controller->Title, nullptr, nullptr);
 	glfwMakeContextCurrent(Window);
 
-	Controller->Window = Window;
-
 	glewExperimental = GL_TRUE;
 	glewInit();
 	glGetError(); // Call it once to catch glewInit() bug, all other errors are now from our application.
+
+	Controller->Window = Window;
 
 	glViewport(0, 0, DEFAULT_SCREENWIDTH, DEFAULT_SCREENHEIGHT);
 

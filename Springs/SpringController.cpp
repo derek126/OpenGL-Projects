@@ -95,7 +95,7 @@ void SpringController::Render()
 		{
 			RESOURCEMANAGER.GetShader("Basic").SetVector3f("inColor", glm::vec3(1.0f, 0.5f, 0.2f), true);
 		}
-		Mass->Draw(View, Projection);
+		Mass->Draw();
 	}
 }
 

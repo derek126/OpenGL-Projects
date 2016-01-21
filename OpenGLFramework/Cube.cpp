@@ -38,12 +38,12 @@ Cube::Cube()
 		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
 
 		// -Y
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f, -0.5f,   1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  -1.0f,  0.0f,
+		0.5f, -0.5f, -0.5f,   1.0f, 1.0f,  0.0f,  -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  0.0f,  -1.0f,  0.0f,
+		0.5f, -0.5f,  0.5f,   1.0f, 0.0f,  0.0f,  -1.0f,  0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  -1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  -1.0f,  0.0f,
 
 		// +Y  
 		0.5f,  0.5f,  0.5f,   1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
@@ -92,12 +92,10 @@ Cube::~Cube()
 	glDeleteBuffers(1, &Buffers["VBO"]);
 }
 
-void Cube::Draw(const glm::mat4& View, const glm::mat4& Projection)
+void Cube::Draw()
 {
 	// Set the MVP matrices for the shader
 	RESOURCEMANAGER.GetShader(ShaderName).Use();
-	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("projection", Projection);
-	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("view", View);
 	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("model", GetModelMatrix());
 
 	// Bind the texture

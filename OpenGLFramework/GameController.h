@@ -43,8 +43,4 @@ protected:
 	GLboolean bKeys[1024];
 	GLchar* Title;
 	EProjectionType ProjectionType;
-
-	// The current view and projection matrices of the scene
-	glm::mat4 View;
-	glm::mat4 Projection;
 };

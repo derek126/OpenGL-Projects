@@ -12,6 +12,6 @@ public:
 
 	Quad();
 	virtual ~Quad() override;
-	virtual void Draw(const glm::mat4& View, const glm::mat4& Projection) override;
+	virtual void Draw() override;
 };
 

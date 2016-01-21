@@ -100,7 +100,7 @@ void FluidController::Render()
 	{
 		//Voxel->SetTranslation(glm::vec3(i * Scale, j * Scale, k * Scale)); // Real
 		Voxel->SetTranslation(glm::vec3(i, j, k)); // Testing
-		Voxel->Draw(View, Projection);
+		Voxel->Draw();
 	};
 
 	for (GLuint i = 0; i < GridSize; i++)

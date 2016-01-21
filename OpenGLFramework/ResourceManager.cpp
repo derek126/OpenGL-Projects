@@ -6,7 +6,8 @@
 
 #include <SOIL.h>
 
-ResourceManager::ResourceManager()
+ResourceManager::ResourceManager() :
+	bIsUBOInit(GL_FALSE)
 {
 }
 
@@ -21,9 +22,46 @@ ResourceManager& ResourceManager::GetInstance()
 	return Instance;
 }
 
+void ResourceManager::InitUBO()
+{
+	glGenBuffers(1, &UBO);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW); // Allocate memory
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4)); // Bind buffer point
+
+	bIsUBOInit = GL_TRUE;
+}
+
+void ResourceManager::SetProjectionMatrix(const glm::mat4& Projection)
+{
+	if (!bIsUBOInit) InitUBO();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(Projection));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ResourceManager::SetViewMatrix(const glm::mat4& View)
+{
+	if (!bIsUBOInit) InitUBO();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(View));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
 Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, const std::string& Name)
 {
+	if (!bIsUBOInit) InitUBO();
+
 	Shaders[Name] = LoadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
+
+	GLuint UBOBlockIndex = glGetUniformBlockIndex(Shaders[Name].ID, "SceneData");
+	glUniformBlockBinding(Shaders[Name].ID, UBOBlockIndex, 0);
+
 	return Shaders[Name];
 }
 
@@ -52,10 +90,6 @@ void ResourceManager::Clear()
 	// (Properly) delete all textures
 	for (auto iter : Textures)
 		glDeleteTextures(1, &iter.second.ID);
-
-	// (Properly) delete all UBO
-	for (auto iter : UBOs)
-		glDeleteBuffers(1, &iter.second);
 
 	glDeleteBuffers(1, &UBO);
 }

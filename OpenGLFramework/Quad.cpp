@@ -60,12 +60,10 @@ Quad::~Quad()
 	glDeleteBuffers(1, &Buffers["EBO"]);
 }
 
-void Quad::Draw(const glm::mat4& View, const glm::mat4& Projection)
+void Quad::Draw()
 {
 	// Set the MVP matrices for the shader
 	RESOURCEMANAGER.GetShader(ShaderName).Use();
-	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("projection", Projection);
-	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("view", View);
 	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("model", GetModelMatrix());
 
 	// Bind the texture
