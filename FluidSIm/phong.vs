@@ -1,6 +1,7 @@
 #version 330 core
   
 layout (location = 0) in vec3 Position;
+layout (location = 2) in vec3 Normal;
 
 layout (std140) uniform SceneData
 {
@@ -8,9 +9,18 @@ layout (std140) uniform SceneData
     mat4 View;
 };
 
+out VS_OUT
+{
+    vec3 Normal;
+	vec3 FragPos;
+} vs_out;
+
 uniform mat4 Model;
 
 void main()
 {
+	vs_out.Normal = mat3(transpose(inverse(View * Model))) * Normal;
+	vs_out.FragPos = vec3(View * Model * vec4(Position, 1.0f));
+
     gl_Position = Projection * View * Model * vec4(Position.x, Position.y, Position.z, 1.0);
 }
