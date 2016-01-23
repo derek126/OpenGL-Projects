@@ -3,6 +3,7 @@
 #include "GameController.h"
 #include "PointMass.h"
 #include "Spring.h"
+#include "AngularSpring.h"
 
 #include <vector>
 
@@ -29,10 +30,12 @@ private:
 	void InitSpring();
 	void InitSpringWithDampening();
 	void InitSpringMesh();
+	void InitAngularSpring();
 
 	// State
 	std::vector<PointMass*> Masses;
 	std::vector<Spring*> Springs;
+	std::vector<AngularSpring*> AngSprings;
 
 	// Used to store the spring mesh
 	const GLint SizeX = 64;

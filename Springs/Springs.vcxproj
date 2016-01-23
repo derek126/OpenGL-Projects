@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AngularSpring.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PointMass.cpp" />
     <ClCompile Include="Spring.cpp" />
@@ -135,6 +136,7 @@
     <None Include="phong.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AngularSpring.h" />
     <ClInclude Include="PointMass.h" />
     <ClInclude Include="Spring.h" />
     <ClInclude Include="SpringController.h" />

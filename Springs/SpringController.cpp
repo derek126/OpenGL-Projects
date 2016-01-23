@@ -26,6 +26,11 @@ SpringController::~SpringController()
 	{
 		delete it;
 	}
+
+	for (auto& it : AngSprings)
+	{
+		delete it;
+	}
 }
 
 void SpringController::Initialize()
@@ -33,6 +38,7 @@ void SpringController::Initialize()
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(1920, 1080);
 	SetCamera(glm::vec3(0.f, 0.f, 10.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.0f, 0.f));
+	//SetCamera(glm::vec3(0.f, 0.f, 50.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.0f, 0.f));
 
 	// OpenGL configuration
 	glEnable(GL_CULL_FACE);
@@ -47,6 +53,7 @@ void SpringController::Initialize()
 	InitSpring();
 	InitSpringWithDampening();
 	InitSpringMesh();
+	InitAngularSpring();
 }
 
 void SpringController::Update(const GLdouble& dt)
@@ -71,6 +78,11 @@ void SpringController::Update(const GLdouble& dt)
 		Spring->Simulate(static_cast<GLfloat>(dt));
 	}
 
+	for (auto& AngSpring : AngSprings)
+	{
+		AngSpring->Simulate(static_cast<GLfloat>(dt));
+	}
+
 	// Update mass velocities
 	for (auto& Mass : Masses)
 	{
@@ -84,6 +96,11 @@ void SpringController::ProcessInput(const GLdouble& dt)
 
 void SpringController::Render()
 {
+	for (auto& AngSpring : AngSprings)
+	{
+		AngSpring->Draw();
+	}
+
 	// Render all the masses on the screen, change the color of mass depending on whether it is fixed or not
 	for (auto& Mass : Masses)
 	{
@@ -198,4 +215,14 @@ void SpringController::InitSpringMesh()
 			}
 		}
 	}
+}
+
+void SpringController::InitAngularSpring()
+{
+	AngularSpring* ASpring = new AngularSpring("Phong", 3.f, 10.f);
+	ASpring->SetTranslation(glm::vec3(-2.f, 0.f, 0.f));
+	ASpring->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+	ASpring->Init();
+
+	AngSprings.push_back(ASpring);
 }
