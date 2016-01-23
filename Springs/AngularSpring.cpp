@@ -3,10 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/random.hpp>
 
-#include <iostream>
-#include <glm/gtx/string_cast.hpp>
-
-AngularSpring::AngularSpring(const std::string& ShaderName, const GLfloat& Radius, const GLfloat& SpringContant, const GLfloat& RestAngle, const GLfloat& Dampening) :
+AngularSpring::AngularSpring(const std::string& ShaderName, const GLfloat& Radius, const GLfloat& SpringContant, const GLfloat& Dampening, const GLfloat& RestAngle) :
 	ShaderName(ShaderName),
 	Radius(Radius),
 	SpringContant(SpringContant),
@@ -107,7 +104,7 @@ void AngularSpring::Init()
 
 void AngularSpring::Simulate(const GLfloat& dt)
 {
-	GLfloat CurrentAngle = glm::asin(Model[3][1] / glm::length(Model[3] - TranslationMatrix[3]));
+	GLfloat CurrentAngle = glm::asin((Model[3][1] - TranslationMatrix[3][1]) / glm::length(Model[3] - TranslationMatrix[3]));
 	GLfloat Torque = SpringContant * (RestAngle - CurrentAngle) - Dampening * AngularVelocity;
 
 	AngularVelocity += Torque / (2.f / 5.f * 10 * glm::pow(Radius, 2)) * dt;

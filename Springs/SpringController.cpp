@@ -220,7 +220,14 @@ void SpringController::InitSpringMesh()
 void SpringController::InitAngularSpring()
 {
 	AngularSpring* ASpring = new AngularSpring("Phong", 3.f, 10.f);
-	ASpring->SetTranslation(glm::vec3(-2.f, 0.f, 0.f));
+	ASpring->SetTranslation(glm::vec3(-2.f, -3.f, 0.f));
+	ASpring->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
+	ASpring->Init();
+
+	AngSprings.push_back(ASpring);
+
+	ASpring = new AngularSpring("Phong", 3.f, 10.f, 1.5f);
+	ASpring->SetTranslation(glm::vec3(-2.f, 1.f, 0.f));
 	ASpring->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	ASpring->Init();
 
