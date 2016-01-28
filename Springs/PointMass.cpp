@@ -21,10 +21,11 @@ void PointMass::Update(const GLfloat& dt)
 {
 	if (bIsFixed) return;
 
-	// Vf = V0 + A*t
+	// Euler
 	Velocity += (Force / Mass) * dt;
 	SetTranslation((Velocity * dt) + GetPosition());
 
+	// RK4
 	/*auto Eval = [this](const glm::vec3& Accel, const GLfloat& dt)
 	{
 		std::array<glm::vec3, 2> Out;
