@@ -31,7 +31,12 @@ void FluidController::Initialize()
 {
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(1920, 1080);
-	SetCamera(glm::vec3(8.f, 8.f, 10.0f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.0f, 0.f)); // Real
+	Camera->SetPosition(glm::vec3(8.f, 8.f, 10.0f));
+	Camera->SetLookAt(glm::vec3(1.f, 0.f, 0.f));
+	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
+	Camera->UpdateView();
+
+	//SetCamera(glm::vec3(8.f, 8.f, 10.0f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.0f, 0.f)); // Real
 	//SetCamera(glm::vec3(75.f, 55.f, 150.0f), glm::vec3(10.f, 20.f, 0.f), glm::vec3(0.f, 1.0f, 0.f)); // 64
 	//SetCamera(glm::vec3(75.f, 55.f, 50.0f), glm::vec3(5.f, 5.f, 0.f), glm::vec3(0.f, 1.0f, 0.f)); // 32
 
