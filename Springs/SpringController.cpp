@@ -35,10 +35,14 @@ SpringController::~SpringController()
 
 void SpringController::Initialize()
 {
+	GameController::Initialize();
+
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(1920, 1080);
-	SetCamera(glm::vec3(0.f, 0.f, 10.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.0f, 0.f));
-	//SetCamera(glm::vec3(0.f, 0.f, 50.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.0f, 0.f));
+	Camera->SetPosition(glm::vec3(0.f, 0.f, 10.f));
+	Camera->SetLookAt(glm::vec3(0.f, 0.f, 0.f));
+	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
+	Camera->UpdateView();
 
 	// OpenGL configuration
 	glEnable(GL_CULL_FACE);
@@ -92,6 +96,30 @@ void SpringController::Update(const GLdouble& dt)
 
 void SpringController::ProcessInput(const GLdouble& dt)
 {
+	if (bKeys[GLFW_KEY_W] || bKeys[GLFW_KEY_S] || bKeys[GLFW_KEY_A] || bKeys[GLFW_KEY_D])
+	{
+		if (bKeys[GLFW_KEY_W])
+		{
+			Camera->Translate(glm::vec3(0.0, 1.f, 0.f) * static_cast<GLfloat>(dt));
+		}
+
+		if (bKeys[GLFW_KEY_S])
+		{
+			Camera->Translate(-glm::vec3(0.f, 1.f, 0.f) * static_cast<GLfloat>(dt));
+		}
+
+		if (bKeys[GLFW_KEY_A])
+		{
+			Camera->Translate(-glm::vec3(1.f, 0.f, 0.f) * static_cast<GLfloat>(dt));
+		}
+
+		if (bKeys[GLFW_KEY_D])
+		{
+			Camera->Translate(glm::vec3(1.f, 0.f, 0.f) * static_cast<GLfloat>(dt));
+		}
+
+		Camera->UpdateView();
+	}
 }
 
 void SpringController::Render()

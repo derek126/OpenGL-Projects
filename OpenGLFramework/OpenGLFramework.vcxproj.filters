@@ -13,16 +13,19 @@
       <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Drawable.cpp">
-      <Filter>Actors\Primitives</Filter>
+      <Filter>SceneObjects\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Quad.cpp">
-      <Filter>Actors\Primitives</Filter>
+      <Filter>SceneObjects\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Cube.cpp">
-      <Filter>Actors\Primitives</Filter>
+      <Filter>SceneObjects\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Actor.cpp">
-      <Filter>Actors</Filter>
+      <Filter>SceneObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>SceneObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -38,26 +41,29 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Drawable.h">
-      <Filter>Actors\Primitives</Filter>
+      <Filter>SceneObjects\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Quad.h">
-      <Filter>Actors\Primitives</Filter>
+      <Filter>SceneObjects\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Cube.h">
-      <Filter>Actors\Primitives</Filter>
+      <Filter>SceneObjects\Primitives</Filter>
     </ClInclude>
     <ClInclude Include="Actor.h">
-      <Filter>Actors</Filter>
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>SceneObjects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
       <UniqueIdentifier>{d424dda5-0db7-4264-8bbf-7a9fde8b38fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Actors">
+    <Filter Include="SceneObjects">
       <UniqueIdentifier>{b44379bb-3434-4f3b-b26c-bf8dd8e575fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Actors\Primitives">
+    <Filter Include="SceneObjects\Primitives">
       <UniqueIdentifier>{dfc7987a-c954-471b-8336-cf086bfce598}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

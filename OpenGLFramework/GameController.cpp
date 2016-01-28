@@ -7,15 +7,17 @@ GameController::GameController() :
 	Title(""),
 	ProjectionType(EProjectionType::PERSP)
 {
+	Camera = new class Camera();
 }
 
 GameController::~GameController()
 {
+	if (Camera) delete Camera;
 }
 
-void GameController::SetCamera(const glm::vec3& position, const glm::vec3& target, const glm::vec3& up)
+void GameController::Initialize()
 {
-	RESOURCEMANAGER.SetViewMatrix(glm::lookAt(position, target, up));
+	Camera->UpdateView();
 }
 
 void GameController::SetScreenDimensions(const GLuint& Width, const GLuint& Height, const GLboolean& UpdateWindow)
