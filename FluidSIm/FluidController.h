@@ -29,7 +29,7 @@ private:
 	// Structure to contain blob data
 	struct Blob
 	{
-		Blob(const glm::vec3& GridPos) : Radius(1.f), Position(GridPos)
+		Blob(const glm::vec3& GridPos) : Radius(glm::linearRand(0.5f, 1.f)), Position(GridPos)
 		{
 			Velocity = glm::vec3(glm::linearRand(-0.5f, 0.5f), glm::linearRand(-0.5f, 0.5f), glm::linearRand(-0.5f, 0.5f));
 			//Velocity = glm::vec3(.25f, 0.f, 0.f);
@@ -48,7 +48,7 @@ private:
 	GLuint WorldToGridY(const GLfloat& gy) const;
 	GLuint WorldToGridZ(const GLfloat& gz) const;
 
-	const GLuint GridSize = 32;
+	const GLuint GridSize = 48;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
 	GLfloat Scale;
