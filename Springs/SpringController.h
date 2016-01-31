@@ -4,6 +4,7 @@
 #include "PointMass.h"
 #include "Spring.h"
 #include "AngularSpring.h"
+#include "CRSpline.h"
 
 #include <vector>
 
@@ -19,10 +20,10 @@ public:
 	~SpringController();
 
 	// GameController Interface
-	void Initialize();
-	void Update(const GLdouble& dt);
-	void ProcessInput(const GLdouble& dt);
-	void Render();
+	virtual void Initialize() override;
+	virtual void Update(const GLdouble& dt) override;
+	virtual void ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode) override;
+	virtual void Render() override;
 
 private:
 
@@ -32,10 +33,15 @@ private:
 	void InitSpringMesh();
 	void InitAngularSpring();
 
+	// Updates the camera position (uses the spline)
+	void UpdateCamera(const GLfloat& dt);
+	CRSpline Spline;
+
 	// State
 	std::vector<PointMass*> Masses;
 	std::vector<Spring*> Springs;
 	std::vector<AngularSpring*> AngSprings;
+	GLboolean bIsCameraMoving;
 
 	// Used to store the spring mesh
 	const GLint SizeX = 64;

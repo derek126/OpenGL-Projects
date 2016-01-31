@@ -28,7 +28,7 @@ public:
 
 	// Functions meant to be overidden to construct a game/scene
 	virtual void Initialize();
-	virtual void ProcessInput(const GLdouble& dt) = 0;
+	virtual void ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode) = 0;
 	virtual void Update(const GLdouble& dt) = 0;
 	virtual void Render() = 0;
 
@@ -39,7 +39,6 @@ protected:
 
 	// State
 	GLFWwindow* Window;
-	GLboolean bKeys[1024];
 	GLchar* Title;
 	EProjectionType ProjectionType;
 	Camera* Camera;

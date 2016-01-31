@@ -27,6 +27,9 @@
     <ClCompile Include="Camera.cpp">
       <Filter>SceneObjects</Filter>
     </ClCompile>
+    <ClCompile Include="CRSpline.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h" />
@@ -55,6 +58,9 @@
     <ClInclude Include="Camera.h">
       <Filter>SceneObjects</Filter>
     </ClInclude>
+    <ClInclude Include="CRSpline.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
@@ -65,6 +71,9 @@
     </Filter>
     <Filter Include="SceneObjects\Primitives">
       <UniqueIdentifier>{dfc7987a-c954-471b-8336-cf086bfce598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{8de01f31-e0d6-47d4-8942-338c8f9a50a5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

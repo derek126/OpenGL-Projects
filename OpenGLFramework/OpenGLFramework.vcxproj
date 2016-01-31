@@ -133,6 +133,7 @@
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="CRSpline.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>
@@ -145,6 +146,7 @@
     <ClInclude Include="GameController.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="CRSpline.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Texture2D.h" />
   </ItemGroup>

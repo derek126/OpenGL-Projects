@@ -3,7 +3,6 @@
 #include "ResourceManager.h"
 
 GameController::GameController() :
-	bKeys(), 
 	Title(""),
 	ProjectionType(EProjectionType::PERSP)
 {

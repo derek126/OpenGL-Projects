@@ -97,7 +97,7 @@ void GameManager::Run()
 		{
 			// Check for events, process any input, and then update the controller
 			glfwPollEvents();
-			Controller->ProcessInput(TARGET_FRAMERATE);
+			//Controller->ProcessInput(TARGET_FRAMERATE);
 			Controller->Update(TARGET_FRAMERATE);
 			accumulator -= TARGET_FRAMERATE;
 		}
@@ -117,10 +117,8 @@ void GameManager::Key_Callback(GLFWwindow* Window, GLint Key, GLint Scancode, GL
 		glfwSetWindowShouldClose(Window, GL_TRUE);
 	if (Key >= 0 && Key < 1024)
 	{
-		if (Action == GLFW_PRESS)
-			GAMEMANAGER.Controller->bKeys[Key] = GL_TRUE;
-		else if (Action == GLFW_RELEASE)
-			GAMEMANAGER.Controller->bKeys[Key] = GL_FALSE;
+		if (GAMEMANAGER.Controller)
+			GAMEMANAGER.Controller->ProcessInput(Key, Action, Mode);
 	}
 }
 

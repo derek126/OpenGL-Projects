@@ -98,7 +98,7 @@ void FluidController::Update(const GLdouble& dt)
 	}
 }
 
-void FluidController::ProcessInput(const GLdouble& dt)
+void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
 {
 }
 

@@ -3,7 +3,8 @@
 #include <glm/gtc/random.hpp>
 #include "ResourceManager.h"
 
-SpringController::SpringController()
+SpringController::SpringController() :
+	bIsCameraMoving(false)
 {
 	// Set the mesh grid to the appropriate size
 	MeshGrid.resize(SizeX);
@@ -11,6 +12,13 @@ SpringController::SpringController()
 	{
 		it.resize(SizeY);
 	}
+
+	// Build the spline
+	Spline.AddPoint(glm::vec3(0.f, 0.f, 12.f));
+	Spline.AddPoint(glm::vec3(-12.f, 12.f, 0.f));
+	Spline.AddPoint(glm::vec3(0.f, 0.f, -12.f));
+	Spline.AddPoint(glm::vec3(12.f, -12.f, 0.f));
+	Spline.AddPoint(glm::vec3(0.f, 0.f, 12.f));
 }
 
 
@@ -92,33 +100,18 @@ void SpringController::Update(const GLdouble& dt)
 	{
 		Mass->Update(static_cast<GLfloat>(dt));
 	}
+
+	if (bIsCameraMoving)
+	{
+		UpdateCamera(static_cast<GLfloat>(dt));
+	}
 }
 
-void SpringController::ProcessInput(const GLdouble& dt)
+void SpringController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
 {
-	if (bKeys[GLFW_KEY_W] || bKeys[GLFW_KEY_S] || bKeys[GLFW_KEY_A] || bKeys[GLFW_KEY_D])
+	if (Key == GLFW_KEY_SPACE && Action == GLFW_RELEASE)
 	{
-		if (bKeys[GLFW_KEY_W])
-		{
-			Camera->Translate(glm::vec3(0.0, 1.f, 0.f) * static_cast<GLfloat>(dt));
-		}
-
-		if (bKeys[GLFW_KEY_S])
-		{
-			Camera->Translate(-glm::vec3(0.f, 1.f, 0.f) * static_cast<GLfloat>(dt));
-		}
-
-		if (bKeys[GLFW_KEY_A])
-		{
-			Camera->Translate(-glm::vec3(1.f, 0.f, 0.f) * static_cast<GLfloat>(dt));
-		}
-
-		if (bKeys[GLFW_KEY_D])
-		{
-			Camera->Translate(glm::vec3(1.f, 0.f, 0.f) * static_cast<GLfloat>(dt));
-		}
-
-		Camera->UpdateView();
+		bIsCameraMoving = !bIsCameraMoving;
 	}
 }
 
@@ -260,4 +253,10 @@ void SpringController::InitAngularSpring()
 	ASpring->Init();
 
 	AngSprings.push_back(ASpring);
+}
+
+void SpringController::UpdateCamera(const GLfloat& dt)
+{
+	Camera->SetPosition(Spline.GetInterpolatedPoint(dt));
+	Camera->UpdateView();
 }
