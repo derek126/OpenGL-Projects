@@ -2,6 +2,9 @@
 
 #include "Cube.h"
 
+/*
+* A self-contained class to simulate an angular spring
+*/
 class AngularSpring : public Drawable
 {
 public:
