@@ -63,7 +63,7 @@ GLboolean GameManager::Initialize(GameController* NewController)
 	glfwSetKeyCallback(Window, GameManager::Key_Callback);
 	glfwSetWindowSizeCallback(Window, GameManager::WindowResize_Callback);
 	//glfwSetMouseButtonCallback(Window, );
-	//glfwSetCursorPosCallback(Window, );
+	glfwSetCursorPosCallback(Window, GameManager::MouseMove_Callback);
 
 	return GL_TRUE;
 }
@@ -127,4 +127,10 @@ void GameManager::WindowResize_Callback(GLFWwindow* Window, GLint Width, GLint H
 	if (!GAMEMANAGER.Controller) return;
 	glViewport(0, 0, Width, Height);
 	GAMEMANAGER.Controller->SetScreenDimensions(Width, Height, false);
+}
+
+void GameManager::MouseMove_Callback(GLFWwindow* Window, GLdouble dX, GLdouble dY)
+{
+	if (!GAMEMANAGER.Controller) return;
+	GAMEMANAGER.Controller->ProcessMouseMove(dX, dY);
 }

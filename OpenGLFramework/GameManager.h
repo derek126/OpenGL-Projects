@@ -44,5 +44,6 @@ private:
 	// Callbacks
 	static void Key_Callback(GLFWwindow* Window, GLint Key, GLint Scancode, GLint Action, GLint Mode);
 	static void WindowResize_Callback(GLFWwindow* Window, GLint Width, GLint Height);
+	static void MouseMove_Callback(GLFWwindow* Window, GLdouble dX, GLdouble dY);
 };
 

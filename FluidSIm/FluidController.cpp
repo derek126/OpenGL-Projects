@@ -35,7 +35,7 @@ void FluidController::Initialize()
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(1920, 1080);
 	Camera->SetPosition(glm::vec3(7.f, 8.f, 10.0f));
-	Camera->SetLookAt(glm::vec3(0.5f, 0.5f, 0.f));
+	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
 
@@ -99,6 +99,10 @@ void FluidController::Update(const GLdouble& dt)
 }
 
 void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
+{
+}
+
+void FluidController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 {
 }
 

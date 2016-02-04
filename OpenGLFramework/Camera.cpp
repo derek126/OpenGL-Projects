@@ -4,7 +4,7 @@
 
 Camera::Camera() :
 	Position(0.f),
-	LookAt(0.f),
+	Focus(0.f),
 	WorldUp(0.f, 1.f, 0.f)
 {
 }
@@ -16,7 +16,7 @@ Camera::~Camera()
 void Camera::Translate(const glm::vec3& Translation)
 {
 	Position += Translation;
-	LookAt += Translation;
+	Focus += Translation;
 }
 
 void Camera::SetPosition(const glm::vec3& Translation)
@@ -24,9 +24,9 @@ void Camera::SetPosition(const glm::vec3& Translation)
 	Position = Translation;
 }
 
-void Camera::SetLookAt(const glm::vec3& Look)
+void Camera::SetFocus(const glm::vec3& Look)
 {
-	LookAt = Look;
+	Focus = Look;
 }
 
 void Camera::SetWorldUp(const glm::vec3& Up)
@@ -36,5 +36,5 @@ void Camera::SetWorldUp(const glm::vec3& Up)
 
 void Camera::UpdateView()
 {
-	RESOURCEMANAGER.SetViewMatrix(glm::lookAt(Position, LookAt, WorldUp));
+	RESOURCEMANAGER.SetViewMatrix(glm::lookAt(Position, Position + glm::normalize(Focus - Position), WorldUp));
 }

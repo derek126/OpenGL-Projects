@@ -45,10 +45,13 @@ void SpringController::Initialize()
 {
 	GameController::Initialize();
 
+	// Hide the mouse cursor
+	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(1920, 1080);
 	Camera->SetPosition(glm::vec3(0.f, 0.f, 10.f));
-	Camera->SetLookAt(glm::vec3(0.f, 0.f, 0.f));
+	Camera->SetFocus(glm::vec3(0.f, 0.f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
 
@@ -113,6 +116,10 @@ void SpringController::ProcessInput(const GLint& Key, const GLint& Action, const
 	{
 		bIsCameraMoving = !bIsCameraMoving;
 	}
+}
+
+void SpringController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
+{
 }
 
 void SpringController::Render()
@@ -194,8 +201,6 @@ void SpringController::InitSpringMesh()
 	{
 		for (GLint j = 0; j < SizeY; j++)
 		{
-			PointMass* M = MeshGrid[i][j];
-
 			// Structural
 			if (i != 0)
 			{
@@ -247,7 +252,7 @@ void SpringController::InitAngularSpring()
 
 	AngSprings.push_back(ASpring);
 
-	ASpring = new AngularSpring("Phong", 3.f, 10.f, 1.5f);
+	ASpring = new AngularSpring("Phong", 3.f, 10.f, 0.95f);
 	ASpring->SetTranslation(glm::vec3(-2.f, 1.f, 0.f));
 	ASpring->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	ASpring->Init();

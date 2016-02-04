@@ -29,6 +29,7 @@ public:
 	// Functions meant to be overidden to construct a game/scene
 	virtual void Initialize();
 	virtual void ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode) = 0;
+	virtual void ProcessMouseMove(const GLdouble& dX, const GLdouble& dY) = 0;
 	virtual void Update(const GLdouble& dt) = 0;
 	virtual void Render() = 0;
 

@@ -11,7 +11,7 @@ public:
 	~Camera();
 
 	void SetPosition(const glm::vec3& Translation);
-	void SetLookAt(const glm::vec3& Look);
+	void SetFocus(const glm::vec3& Look);
 	void SetWorldUp(const glm::vec3& Up);
 
 	void Translate(const glm::vec3& Translation);
@@ -20,7 +20,7 @@ public:
 
 private:
 
-	glm::vec3 Position, LookAt, WorldUp;
+	glm::vec3 Position, Focus, WorldUp;
 
 };
 
