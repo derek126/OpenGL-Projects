@@ -3,9 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/random.hpp>
 
-AngularSpring::AngularSpring(const std::string& ShaderName, const GLfloat& Radius, const GLfloat& SpringContant, const GLfloat& Dampening, const GLfloat& RestAngle) :
+AngularSpring::AngularSpring(const std::string& ShaderName, const GLfloat& Length, const GLfloat& SpringContant, const GLfloat& Dampening, const GLfloat& RestAngle) :
 	ShaderName(ShaderName),
-	Radius(Radius),
+	Length(Length),
 	SpringContant(SpringContant),
 	RestAngle(RestAngle),
 	Dampening(Dampening)
@@ -98,7 +98,7 @@ AngularSpring::~AngularSpring()
 
 void AngularSpring::Init()
 {
-	Model = TranslationMatrix * glm::translate(Model, glm::vec3(Radius, 0.f, 0.f));
+	Model = TranslationMatrix * glm::translate(Model, glm::vec3(Length, 0.f, 0.f));
 	Model *= ScaleMatrix;
 }
 
@@ -107,11 +107,11 @@ void AngularSpring::Simulate(const GLfloat& dt)
 	GLfloat CurrentAngle = glm::asin((Model[3][1] - TranslationMatrix[3][1]) / glm::length(Model[3] - TranslationMatrix[3]));
 	GLfloat Torque = SpringContant * (RestAngle - CurrentAngle) - Dampening * AngularVelocity;
 
-	AngularVelocity += Torque / (2.f / 5.f * 10 * glm::pow(Radius, 2)) * dt;
+	AngularVelocity += Torque / (glm::pow(Length, 2) / 3) * dt;
 	Rotation += AngularVelocity * dt;
 
 	Model = glm::rotate(glm::mat4(), Rotation, glm::vec3(0.f, 0.f, 1.f));
-	Model = TranslationMatrix * glm::translate(Model, glm::vec3(Radius, 0.f, 0.f));
+	Model = TranslationMatrix * glm::translate(Model, glm::vec3(Length, 0.f, 0.f));
 	Model *= ScaleMatrix;
 }
 

@@ -8,7 +8,7 @@
 class AngularSpring : public Drawable
 {
 public:
-	AngularSpring(const std::string& ShaderName, const GLfloat& Radius, const GLfloat& SpringContant, const GLfloat& Dampening = 0.f, const GLfloat& RestAngle = glm::radians(45.f));
+	AngularSpring(const std::string& ShaderName, const GLfloat& Length, const GLfloat& SpringContant, const GLfloat& Dampening = 0.f, const GLfloat& RestAngle = glm::radians(45.f));
 	~AngularSpring();
 
 	void Init();
@@ -19,7 +19,7 @@ private:
 
 	Cube FixedMass;
 	std::string ShaderName;
-	GLfloat Radius, AngularVelocity, Rotation, SpringContant, RestAngle, Dampening;
+	GLfloat Length, AngularVelocity, Rotation, SpringContant, RestAngle, Dampening;
 	GLuint VAO, VBO;
 
 	glm::mat4 Model; // The model matrix for the moveable point

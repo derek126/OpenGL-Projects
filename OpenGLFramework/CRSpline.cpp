@@ -1,7 +1,5 @@
 #include "CRSpline.h"
 
-#include <iostream>
-
 CRSpline::CRSpline() :
 	Incr(0),
 	Elapsed(0), 
@@ -38,8 +36,6 @@ glm::vec3 CRSpline::GetInterpolatedPoint(const GLfloat& dt)
 	{
 		Elapsed = 0;
 	}
-
-	std::cout << p << std::endl;
 
 	auto Clamp = [this](GLuint& p) 
 	{
