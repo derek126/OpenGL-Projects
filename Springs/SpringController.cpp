@@ -3,8 +3,12 @@
 #include <glm/gtc/random.hpp>
 #include "ResourceManager.h"
 
+#define ScreenX 1920
+#define ScreenY 1080
+
 SpringController::SpringController() :
-	bIsCameraMoving(false)
+	bIsCameraMoving(false),
+	MouseSensitivity(0.0005f)
 {
 	// Set the mesh grid to the appropriate size
 	MeshGrid.resize(SizeX);
@@ -18,6 +22,12 @@ SpringController::SpringController() :
 	Spline.AddPoint(glm::vec3(-12.f, 12.f, 0.f));
 	Spline.AddPoint(glm::vec3(0.f, 0.f, -12.f));
 	Spline.AddPoint(glm::vec3(12.f, -12.f, 0.f));
+	Spline.AddPoint(glm::vec3(0.f, 0.f, 12.f));
+	Spline.AddPoint(glm::vec3(0.f, 0.f, -12.f));
+	Spline.AddPoint(glm::vec3(-12.f, 0.f, 0.f));
+	Spline.AddPoint(glm::vec3(0.f, 0.f, 12.f));
+	Spline.AddPoint(glm::vec3(12.f, 5.f, 0.f));
+	Spline.AddPoint(glm::vec3(0.f, 5.f, -12.f));
 	Spline.AddPoint(glm::vec3(0.f, 0.f, 12.f));
 }
 
@@ -49,7 +59,7 @@ void SpringController::Initialize()
 	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	// Increase screen dimensions and then set the camera location
-	SetScreenDimensions(1920, 1080);
+	SetScreenDimensions(ScreenX, ScreenY);
 	Camera->SetPosition(glm::vec3(0.f, 0.f, 10.f));
 	Camera->SetFocus(glm::vec3(0.f, 0.f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
@@ -104,6 +114,7 @@ void SpringController::Update(const GLdouble& dt)
 		Mass->Update(static_cast<GLfloat>(dt));
 	}
 
+	// Update camera
 	if (bIsCameraMoving)
 	{
 		UpdateCamera(static_cast<GLfloat>(dt));
@@ -120,6 +131,22 @@ void SpringController::ProcessInput(const GLint& Key, const GLint& Action, const
 
 void SpringController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 {
+	static GLint normalX = ScreenX / 2;
+	static GLint normalY = ScreenY / 2;
+
+	GLboolean bDidUpdate = false;
+	if (dX != normalX || dY != normalY)
+	{
+		Camera->RotateByMouse(static_cast<GLfloat>(dX - normalX) * MouseSensitivity, static_cast<GLfloat>(dY - normalY) * MouseSensitivity);
+		Camera->UpdateView();
+
+		bDidUpdate = true;
+	}
+
+	if (bDidUpdate)
+	{
+		glfwSetCursorPos(Window, normalX, normalY);
+	}
 }
 
 void SpringController::Render()

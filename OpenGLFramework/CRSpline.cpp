@@ -3,7 +3,7 @@
 CRSpline::CRSpline() :
 	Incr(0),
 	Elapsed(0), 
-	SpeedFactor(0.05f)
+	SpeedFactor(0.025f)
 {
 }
 

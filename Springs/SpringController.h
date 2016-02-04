@@ -43,6 +43,7 @@ private:
 	std::vector<Spring*> Springs;
 	std::vector<AngularSpring*> AngSprings;
 	GLboolean bIsCameraMoving;
+	GLfloat MouseSensitivity;
 
 	// Used to store the spring mesh
 	const GLint SizeX = 64;

@@ -10,17 +10,16 @@ public:
 	Camera();
 	~Camera();
 
-	void SetPosition(const glm::vec3& Translation);
+	void SetPosition(const glm::vec3& Position);
 	void SetFocus(const glm::vec3& Look);
 	void SetWorldUp(const glm::vec3& Up);
 
-	void Translate(const glm::vec3& Translation);
+	void RotateByMouse(const GLfloat& dX, const GLfloat& dY);
 
 	void UpdateView();
 
 private:
 
-	glm::vec3 Position, Focus, WorldUp;
-
+	glm::vec3 Position, WorldUp, LocalUp, View;
 };
 
