@@ -3,12 +3,16 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="FluidController.cpp" />
+    <ClCompile Include="MarchingCubes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FluidController.h" />
+    <ClInclude Include="MarchingCubes.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="phong.vs" />
     <None Include="phong.fs" />
+    <None Include="basic.fs" />
+    <None Include="basic.vs" />
   </ItemGroup>
 </Project>

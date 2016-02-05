@@ -90,6 +90,7 @@ Cube::~Cube()
 	// Properly clean up buffers
 	glDeleteVertexArrays(1, &Buffers["VAO"]);
 	glDeleteBuffers(1, &Buffers["VBO"]);
+	glDeleteBuffers(1, &Buffers["EBO"]);
 }
 
 void Cube::Draw()

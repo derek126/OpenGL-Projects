@@ -1,8 +1,6 @@
 #include "FluidController.h"
 #include "ResourceManager.h"
 
-#include <iostream>
-
 FluidController::FluidController() :
 	Scale(5.f / GridSize),
 	Voxel(nullptr)
@@ -28,20 +26,34 @@ FluidController::FluidController() :
 FluidController::~FluidController()
 {
 	if (Voxel) delete Voxel;
+
+	glDeleteVertexArrays(1, &Buffers["VAO"]);
+	glDeleteBuffers(1, &Buffers["Vertices"]);
+	glDeleteBuffers(1, &Buffers["Normals"]);
+	glDeleteBuffers(1, &Buffers["EBO"]);
 }
 
 void FluidController::Initialize()
 {
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(1920, 1080);
-	Camera->SetPosition(glm::vec3(7.f, 8.f, 10.0f));
+	/*Camera->SetPosition(glm::vec3(7.f, 8.f, 10.0f));
 	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
+	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
+	Camera->UpdateView();*/
+
+	Camera->SetPosition(glm::vec3(10.f, 50.f, 100.0f));
+	Camera->SetFocus(glm::vec3(0.f, 0.f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
 
-	//SetCamera(glm::vec3(8.f, 8.f, 10.0f), glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f, 1.0f, 0.f)); // Real
-	//SetCamera(glm::vec3(75.f, 55.f, 150.0f), glm::vec3(10.f, 20.f, 0.f), glm::vec3(0.f, 1.0f, 0.f)); // 64
-	//SetCamera(glm::vec3(75.f, 55.f, 50.0f), glm::vec3(5.f, 5.f, 0.f), glm::vec3(0.f, 1.0f, 0.f)); // 32
+	/*Camera->SetPosition(glm::vec3(0.f, 0.f, 10.0f));
+	Camera->SetFocus(glm::vec3(0.f, 0.f, 0.f));
+	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
+	Camera->UpdateView();*/
+
+	// Hide the mouse cursor
+	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	// OpenGL configuration
 	glEnable(GL_CULL_FACE);
@@ -49,13 +61,21 @@ void FluidController::Initialize()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
 
-	// Initialize the shader to be used for the masses
-	RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Phong");
-	RESOURCEMANAGER.GetShader("Phong").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
+	GLuint VAO, EBO, Normals, Vertices;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &EBO);
+	glGenBuffers(1, &Vertices);
+	glGenBuffers(1, &Normals);
 
-	Voxel = new Cube();
-	Voxel->SetShader("Phong");
-	Voxel->SetScale(glm::vec3(Scale, Scale, Scale));
+	Buffers["VAO"] = VAO;
+	Buffers["Vertices"] = Vertices;
+	Buffers["Normals"] = Normals;
+	Buffers["EBO"] = EBO;
+
+	// Initialize the shader to be used for the masses
+	RESOURCEMANAGER.LoadShader("basic.vs", "basic.fs", nullptr, "Basic");
+    RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Phong");
+	RESOURCEMANAGER.GetShader("Phong").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 }
 
 void FluidController::Update(const GLdouble& dt)
@@ -96,6 +116,9 @@ void FluidController::Update(const GLdouble& dt)
 			}
 		}
 	}
+
+	// Generate the mesh
+	Mesh.CreateMesh(Grid);
 }
 
 void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
@@ -104,54 +127,47 @@ void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const 
 
 void FluidController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 {
+	static GLint normalX = 1920 / 2;
+	static GLint normalY = 1080 / 2;
+
+	GLboolean bDidUpdate = false;
+	if (dX != normalX || dY != normalY)
+	{
+		Camera->RotateByMouse(static_cast<GLfloat>(dX - normalX) * 0.0005f, static_cast<GLfloat>(dY - normalY) * 0.0005f);
+		Camera->UpdateView();
+
+		bDidUpdate = true;
+	}
+
+	if (bDidUpdate)
+	{
+		glfwSetCursorPos(Window, normalX, normalY);
+	}
 }
 
+#include <Quad.h>
 void FluidController::Render()
 {
-	auto Draw = [this](const GLint& i, const GLint& j, const GLint& k)
-	{
-		Voxel->SetTranslation(glm::vec3(i * Scale, j * Scale, k * Scale)); // Real
-		//Voxel->SetTranslation(glm::vec3(i, j, k)); // Testing
-		Voxel->Draw();
-	};
+	glBindVertexArray(Buffers["VAO"]);
 
-	for (GLuint i = 0; i < GridSize; i++)
-	{
-		for (GLuint j = 0; j < GridSize; j++)
-		{
-			for (GLuint k = 0; k < GridSize; k++)
-			{
-				/*if (Grid[i][j][k] >= 1.f)
-				{
-					//Voxel->SetTranslation(glm::vec3(i * Scale, j * Scale, k * Scale));
-					//Voxel->Draw(View, Projection);
-					//Draw(i, j, k);
-				}*/
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Buffers["EBO"]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, Mesh.GetIndices().size() * sizeof(GLuint), Mesh.GetIndices().data(), GL_DYNAMIC_DRAW);
 
-				if (Grid[i][j][k] >= 1.f)
-				{
-					if (i == 0 || i == GridSize - 1 ||
-						j == 0 || j == GridSize - 1 ||
-						k == 0 || k == GridSize - 1)
-					{
-						Draw(i, j, k);
-					}
-					else
-					{
-						if (Grid[i + 1][j][k] < 1.f ||
-							Grid[i - 1][j][k] < 1.f ||
-							Grid[i][j + 1][k] < 1.f ||
-							Grid[i][j - 1][k] < 1.f ||
-							Grid[i][j][k + 1] < 1.f ||
-							Grid[i][j][k - 1] < 1.f)
-						{
-							Draw(i, j, k);
-						}
-					}
-				}
-			}
-		}
-	}
+	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Vertices"]);
+	glBufferData(GL_ARRAY_BUFFER, Mesh.GetVertices().size() * 3 * sizeof(GLfloat), Mesh.GetVertices().data(), GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Normals"]);
+	glBufferData(GL_ARRAY_BUFFER, Mesh.GetNormals().size() * 3 * sizeof(GLfloat), Mesh.GetNormals().data(), GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+	RESOURCEMANAGER.GetShader("Phong").Use();
+	glDrawElements(GL_TRIANGLES, Mesh.GetIndices().size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
 
 GLfloat FluidController::ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const

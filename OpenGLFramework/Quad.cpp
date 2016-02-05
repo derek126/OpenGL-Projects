@@ -13,8 +13,8 @@ Quad::Quad()
 	};
 
 	GLuint indices[] = {
-		0, 1, 3,  // First Triangle
-		1, 2, 3   // Second Triangle
+		3, 1, 0,  // First Triangle
+		3, 2, 1   // Second Triangle
 	};
 
 	// Create and store buffers

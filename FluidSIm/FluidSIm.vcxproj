@@ -128,11 +128,15 @@
   <ItemGroup>
     <ClCompile Include="FluidController.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MarchingCubes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FluidController.h" />
+    <ClInclude Include="MarchingCubes.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="basic.fs" />
+    <None Include="basic.vs" />
     <None Include="phong.fs" />
     <None Include="phong.vs" />
   </ItemGroup>
