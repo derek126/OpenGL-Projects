@@ -38,6 +38,7 @@ private:
 		glm::vec3 Position, Velocity;
 	};
 
+	// Computes the charge strength at each griod location
 	GLfloat ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const;
 
 	GLfloat GridToWorldX(const GLuint& gx) const;
@@ -48,13 +49,17 @@ private:
 	GLuint WorldToGridY(const GLfloat& gy) const;
 	GLuint WorldToGridZ(const GLfloat& gz) const;
 
+	// State
 	const GLuint GridSize = 32;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
 	GLfloat Scale;
-	Cube* Voxel;
 
-	MarchingCubes Mesh;
+	// Functions to initialize various aspects of the scene
+	void InitSkybox();
+	void InitBlobs();
+
+	MarchingCubes Mesh; // Computes the mesh, retrieve vertices, indices and normals from here
 	std::map<std::string, GLuint> Buffers; // Buffer storage
 };
 

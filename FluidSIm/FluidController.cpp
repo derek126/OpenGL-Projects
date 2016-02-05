@@ -1,9 +1,11 @@
 #include "FluidController.h"
 #include "ResourceManager.h"
 
+#define ScreenX 1920
+#define ScreenY 1080
+
 FluidController::FluidController() :
-	Scale(5.f / GridSize),
-	Voxel(nullptr)
+	Scale(5.f / GridSize)
 {
 	Grid.resize(GridSize);
 	for (unsigned i = 0; i < GridSize; i++)
@@ -14,19 +16,10 @@ FluidController::FluidController() :
 			Grid[i][j].resize(GridSize);
 		}
 	}
-
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
 }
 
 FluidController::~FluidController()
 {
-	if (Voxel) delete Voxel;
-
 	glDeleteVertexArrays(1, &Buffers["VAO"]);
 	glDeleteBuffers(1, &Buffers["Vertices"]);
 	glDeleteBuffers(1, &Buffers["Normals"]);
@@ -36,9 +29,10 @@ FluidController::~FluidController()
 void FluidController::Initialize()
 {
 	// Increase screen dimensions and then set the camera location
-	SetScreenDimensions(1920, 1080);
+	SetScreenDimensions(ScreenX, ScreenY);
 
-	Camera->SetPosition(glm::vec3(50.f, 80.f, 80.0f));
+	//Camera->SetPosition(glm::vec3(0.f, 0.f, 5.0f));
+	Camera->SetPosition(glm::vec3(50.f, 25.f, 80.0f));
 	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
@@ -52,20 +46,8 @@ void FluidController::Initialize()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
 
-	GLuint VAO, EBO, Normals, Vertices;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &EBO);
-	glGenBuffers(1, &Vertices);
-	glGenBuffers(1, &Normals);
-
-	Buffers["VAO"] = VAO;
-	Buffers["Vertices"] = Vertices;
-	Buffers["Normals"] = Normals;
-	Buffers["EBO"] = EBO;
-
-	// Initialize the shader to be used for the masses
-    RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Phong");
-	RESOURCEMANAGER.GetShader("Phong").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
+	InitBlobs();
+	InitSkybox();
 }
 
 void FluidController::Update(const GLdouble& dt)
@@ -117,8 +99,8 @@ void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const 
 
 void FluidController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 {
-	static GLint normalX = 1920 / 2;
-	static GLint normalY = 1080 / 2;
+	static GLint normalX = ScreenX / 2;
+	static GLint normalY = ScreenY / 2;
 
 	GLboolean bDidUpdate = false;
 	if (dX != normalX || dY != normalY)
@@ -135,8 +117,11 @@ void FluidController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 	}
 }
 
+#include <iostream>
+#include <glm/gtx/string_cast.hpp>
 void FluidController::Render()
 {
+	// Render blobs
 	glBindVertexArray(Buffers["VAO"]);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Buffers["EBO"]);
@@ -154,15 +139,22 @@ void FluidController::Render()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-	RESOURCEMANAGER.GetShader("Phong").Use();
+	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("CameraPosition", Camera->GetPosition(), true);
 	glDrawElements(GL_TRIANGLES, Mesh.GetIndices().size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+
+	//Render skybox
+	glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
+	glBindVertexArray(Buffers["SkyboxVAO"]);
+	RESOURCEMANAGER.GetShader("Skybox").Use();
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS); // Set depth function back to default
 }
 
 GLfloat FluidController::ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const
 {
 	GLfloat val = 0, WorldX = GridToWorldX(gx), WorldY = GridToWorldY(gy), WorldZ = GridToWorldZ(gz);
-
 	for (unsigned i = 0; i < Blobs.size(); i++)
 	{
 		val += glm::pow(Blobs[i].Radius, 2) / (glm::pow(WorldX - Blobs[i].Position.x, 2) + glm::pow(WorldY - Blobs[i].Position.y, 2) + glm::pow(WorldZ - Blobs[i].Position.z, 2));
@@ -199,4 +191,107 @@ GLuint FluidController::WorldToGridY(const GLfloat& wy) const
 GLuint FluidController::WorldToGridZ(const GLfloat& wz) const
 {
 	return static_cast<GLuint>(wz / Scale);
+}
+
+void FluidController::InitSkybox()
+{
+	GLfloat SkyboxVertices[] = {
+		// Positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f
+	};
+
+	// Load the cubemap
+	std::map<std::string, GLchar*> Images;
+	Images["Right"] = "Assets/right.jpg";
+	Images["Left"] = "Assets/left.jpg";
+	Images["Top"] = "Assets/top.jpg";
+	Images["Bottom"] = "Assets/bottom.jpg";
+	Images["Back"] = "Assets/back.jpg";
+	Images["Front"] = "Assets/front.jpg";
+	RESOURCEMANAGER.LoadTexture3D(Images, false, "Skybox").Bind();
+
+	// Init buffers
+	GLuint SkyboxVAO, SkyboxVBO;
+	glGenVertexArrays(1, &SkyboxVAO);
+	glGenBuffers(1, &SkyboxVBO);
+
+	Buffers["SkyboxVAO"] = SkyboxVAO;
+	Buffers["SkyboxVBO"] = SkyboxVBO;
+
+	glBindVertexArray(Buffers["SkyboxVAO"]);
+	glBindBuffer(GL_ARRAY_BUFFER, Buffers["SkyboxVBO"]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(SkyboxVertices), SkyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glBindVertexArray(0);
+
+	// Initialize the shader to be used for the skybox
+	RESOURCEMANAGER.LoadShader("skybox.vs", "skybox.fs", nullptr, "Skybox");
+}
+
+void FluidController::InitBlobs()
+{
+	// Init buffers
+	GLuint VAO, EBO, Normals, Vertices;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &EBO);
+	glGenBuffers(1, &Vertices);
+	glGenBuffers(1, &Normals);
+
+	Buffers["VAO"] = VAO;
+	Buffers["Vertices"] = Vertices;
+	Buffers["Normals"] = Normals;
+	Buffers["EBO"] = EBO;
+
+	// Initialize the shader to be used for the blobs
+	RESOURCEMANAGER.LoadShader("blobs.vs", "blobs.fs", nullptr, "Blobs");
+	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
+
+	// Add blobs
+	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
+	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
+	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
+	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
+	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
+	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
 }

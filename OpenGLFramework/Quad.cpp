@@ -67,7 +67,7 @@ void Quad::Draw()
 	RESOURCEMANAGER.GetShader(ShaderName).SetMatrix4("Model", GetModelMatrix());
 
 	// Bind the texture
-	RESOURCEMANAGER.GetTexture(TextureName).Bind();
+	RESOURCEMANAGER.GetTexture2D(TextureName).Bind();
 
 	// Draw the object
 	glBindVertexArray(Buffers["VAO"]);

@@ -30,6 +30,9 @@
     <ClCompile Include="CRSpline.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="Texture3D.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h" />
@@ -60,6 +63,9 @@
     </ClInclude>
     <ClInclude Include="CRSpline.h">
       <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture3D.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

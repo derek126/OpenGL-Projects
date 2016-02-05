@@ -28,6 +28,11 @@ void Camera::SetWorldUp(const glm::vec3& Up)
 	WorldUp = glm::normalize(Up);
 }
 
+glm::vec3 Camera::GetPosition() const
+{
+	return Position;
+}
+
 void Camera::RotateByMouse(const GLfloat& dX, const GLfloat& dY)
 {
 	glm::quat RotatorX;

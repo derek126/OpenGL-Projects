@@ -70,15 +70,26 @@ Shader ResourceManager::GetShader(const std::string& Name)
 	return Shaders[Name];
 }
 
-Texture2D ResourceManager::LoadTexture(const GLchar *File, const GLboolean& Alpha, const std::string& Name)
+Texture2D ResourceManager::LoadTexture2D(const GLchar *File, const GLboolean& Alpha, const std::string& Name)
 {
-	Textures[Name] = LoadTextureFromFile(File, Alpha);
-	return Textures[Name];
+	Textures2D[Name] = LoadTexture2DFromFile(File, Alpha);
+	return Textures2D[Name];
 }
 
-Texture2D ResourceManager::GetTexture(const std::string& Name)
+Texture2D ResourceManager::GetTexture2D(const std::string& Name)
 {
-	return Textures[Name];
+	return Textures2D[Name];
+}
+
+Texture3D ResourceManager::LoadTexture3D(const std::map<std::string, GLchar*> File, const GLboolean& Alpha, const std::string& Name)
+{
+	Textures3D[Name] = LoadTexture3DFromFile(File, Alpha);
+	return Textures3D[Name];
+}
+
+Texture3D ResourceManager::GetTexture3D(const std::string& Name)
+{
+	return Textures3D[Name];
 }
 
 void ResourceManager::Clear()
@@ -87,11 +98,22 @@ void ResourceManager::Clear()
 	for (auto iter : Shaders)
 		glDeleteProgram(iter.second.ID);
 
+	Shaders.clear();
+
 	// (Properly) delete all textures
-	for (auto iter : Textures)
+	for (auto iter : Textures2D)
 		glDeleteTextures(1, &iter.second.ID);
 
+	Textures2D.clear();
+
+	// (Properly) delete all cubemaps
+	for (auto iter : Textures3D)
+		glDeleteTextures(1, &iter.second.ID);
+
+	Textures3D.clear();
+
 	glDeleteBuffers(1, &UBO);
+	bIsUBOInit = GL_FALSE;
 }
 
 Shader ResourceManager::LoadShaderFromFile(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile)
@@ -143,7 +165,7 @@ Shader ResourceManager::LoadShaderFromFile(const GLchar *vShaderFile, const GLch
 	return shader;
 }
 
-Texture2D ResourceManager::LoadTextureFromFile(const GLchar *File, const GLboolean& Alpha)
+Texture2D ResourceManager::LoadTexture2DFromFile(const GLchar *File, const GLboolean& Alpha)
 {
 	// Create Texture object
 	Texture2D texture;
@@ -156,11 +178,55 @@ Texture2D ResourceManager::LoadTextureFromFile(const GLchar *File, const GLboole
 	// Load image
 	GLint width, height;
 	GLubyte* image = SOIL_load_image(File, &width, &height, 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	if (!image)
+	{
+		std::cerr << "ERROR::TEXTURE: Could not load texture from file." << std::endl;
+	}
 
 	// Now generate texture
 	texture.Generate(width, height, image);
 
 	// And finally free image data
 	SOIL_free_image_data(image);
+	return texture;
+}
+
+// Loads a single cubemap from provided files
+Texture3D ResourceManager::LoadTexture3DFromFile(const std::map<std::string, GLchar*> File, const GLboolean& Alpha)
+{
+	// Create Texture object
+	Texture3D texture;
+	if (Alpha)
+	{
+		texture.Internal_Format = GL_RGBA;
+		texture.Image_Format = GL_RGBA;
+	}
+
+	// Load image
+	std::map<std::string, GLint> Width, Height;
+	std::map<std::string, GLubyte*> Image;
+
+	Image["Right"] = SOIL_load_image(File.at("Right"), &Width["Right"], &Height["Right"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Left"] = SOIL_load_image(File.at("Left"), &Width["Left"], &Height["Left"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Top"] = SOIL_load_image(File.at("Top"), &Width["Top"], &Height["Top"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Bottom"] = SOIL_load_image(File.at("Bottom"), &Width["Bottom"], &Height["Bottom"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Back"] = SOIL_load_image(File.at("Back"), &Width["Back"], &Height["Back"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Front"] = SOIL_load_image(File.at("Front"), &Width["Front"], &Height["Front"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+
+	if (!Image["Right"] || !Image["Left"] || !Image["Top"] || !Image["Bottom"] || !Image["Back"] || !Image["Front"])
+	{
+		std::cerr << "ERROR::TEXTURE: Could not load texture from file." << std::endl;
+	}
+
+	// Now generate texture
+	texture.Generate(Width, Height, Image);
+
+	// And finally free image data
+	SOIL_free_image_data(Image["Right"]);
+	SOIL_free_image_data(Image["Left"]);
+	SOIL_free_image_data(Image["Top"]);
+	SOIL_free_image_data(Image["Bottom"]);
+	SOIL_free_image_data(Image["Back"]);
+	SOIL_free_image_data(Image["Front"]);
 	return texture;
 }

@@ -18,6 +18,8 @@ public:
 
 	void UpdateView();
 
+	glm::vec3 GetPosition() const;
+
 private:
 
 	glm::vec3 Position, WorldUp, LocalUp, View;

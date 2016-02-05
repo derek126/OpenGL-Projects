@@ -10,9 +10,9 @@
     <ClInclude Include="MarchingCubes.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="phong.vs" />
-    <None Include="phong.fs" />
-    <None Include="basic.fs" />
-    <None Include="basic.vs" />
+    <None Include="blobs.vs" />
+    <None Include="blobs.fs" />
+    <None Include="skybox.vs" />
+    <None Include="skybox.fs" />
   </ItemGroup>
 </Project>
