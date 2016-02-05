@@ -37,20 +37,11 @@ void FluidController::Initialize()
 {
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(1920, 1080);
-	/*Camera->SetPosition(glm::vec3(7.f, 8.f, 10.0f));
+
+	Camera->SetPosition(glm::vec3(50.f, 80.f, 80.0f));
 	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
-	Camera->UpdateView();*/
-
-	Camera->SetPosition(glm::vec3(10.f, 50.f, 100.0f));
-	Camera->SetFocus(glm::vec3(0.f, 0.f, 0.f));
-	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
-
-	/*Camera->SetPosition(glm::vec3(0.f, 0.f, 10.0f));
-	Camera->SetFocus(glm::vec3(0.f, 0.f, 0.f));
-	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
-	Camera->UpdateView();*/
 
 	// Hide the mouse cursor
 	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -73,7 +64,6 @@ void FluidController::Initialize()
 	Buffers["EBO"] = EBO;
 
 	// Initialize the shader to be used for the masses
-	RESOURCEMANAGER.LoadShader("basic.vs", "basic.fs", nullptr, "Basic");
     RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Phong");
 	RESOURCEMANAGER.GetShader("Phong").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 }
@@ -145,7 +135,6 @@ void FluidController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 	}
 }
 
-#include <Quad.h>
 void FluidController::Render()
 {
 	glBindVertexArray(Buffers["VAO"]);

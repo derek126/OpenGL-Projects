@@ -20,7 +20,7 @@ void main()
 {
 	float AmbientStrength = 0.1f;
 	vec3 LightColor = vec3(1.0f, 1.0f, 1.0f);
-	vec3 LightPos = vec3(View * vec4(vec3(0.f, 0.f, 50.f), 1.0f));
+	vec3 LightPos = vec3(View * vec4(vec3(50.f, 80.f, 80.0f), 1.0f));
 
     vec3 Ambient = AmbientStrength * LightColor;
 

@@ -396,7 +396,7 @@ std::array<GLfloat, 8> MarchingCubes::MakeCube(const std::vector<std::vector<std
 		}
 		else
 		{
-			Cube[i] = Isolevel;
+			Cube[i] = 0.f;
 		}
 	}
 
@@ -428,16 +428,24 @@ void MarchingCubes::MarchCube(const std::array<GLfloat, 8>& Cube, const GLuint& 
 		if (TriangleTable[Index][3 * i] < 0) break;
 
 		GLint idx = Vertices.size();
-		for (GLuint j = 0; j < 3; j++)
-		{
-			GLint Vert = TriangleTable[Index][3 * i + j];
-			Indices.push_back(idx + j);
-			Vertices.push_back(NewVerts[Vert]);
 
-			Normals.push_back(glm::vec3(0.f, 0.f, 1.f)); // NOT RIGHT!
-		}
+		GLint Vert = TriangleTable[Index][3 * i];
+		Indices.push_back(idx);
+		Vertices.push_back(NewVerts[Vert]);
+
+		Vert = TriangleTable[Index][3 * i + 1];
+		Indices.push_back(idx + 1);
+		Vertices.push_back(NewVerts[Vert]);
+
+		Vert = TriangleTable[Index][3 * i + 2];
+		Indices.push_back(idx + 2);
+		Vertices.push_back(NewVerts[Vert]);
+
+		glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
+		Normals.push_back(Normal);
+		Normals.push_back(Normal);
+		Normals.push_back(Normal);
 	}
-
 }
 
 std::vector<GLuint> MarchingCubes::GetIndices() const
