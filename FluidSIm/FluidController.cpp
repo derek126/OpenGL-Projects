@@ -1,8 +1,15 @@
 #include "FluidController.h"
 #include "ResourceManager.h"
 
+#include <glm\gtc\random.hpp>
+
 #define ScreenX 1920
 #define ScreenY 1080
+
+#define MIN_VELOCITY -5.f
+#define MAX_VELOCITY 5.f
+#define MAIN_RADIUS 8.f
+#define SECONDARY_RADIUS 2.5f
 
 FluidController::FluidController()
 {
@@ -64,7 +71,7 @@ void FluidController::Update(const GLdouble& dt)
 	}
 
 	// Translate the metaballs based on their velocities
-	for (GLuint i = 0; i < Blobs.size(); i++)
+	/*for (GLuint i = 0; i < Blobs.size(); i++)
 	{
 		if (Blobs[i].Position.x <= 0 || Blobs[i].Position.x >= Resolution - 1)
 		{
@@ -82,8 +89,16 @@ void FluidController::Update(const GLdouble& dt)
 		}
 
 		Blobs[i].Position += Blobs[i].Velocity * static_cast<float>(dt);
-	}
+	}*/
 
+	for (GLuint i = 1; i < Blobs.size(); i++)
+	{
+		if (glm::length(Blobs[i].Position - Blobs[0].Position) >= Blobs[0].Radius + SECONDARY_RADIUS * 2)
+		{
+			Blobs[i].Velocity = -Blobs[i].Velocity;
+		}
+		Blobs[i].Position += Blobs[i].Velocity * static_cast<float>(dt);
+	}
 
 	// Compute field strength at each
 	for (GLuint i = 0; i < Resolution; i++)
@@ -261,8 +276,21 @@ void FluidController::InitBlobs()
 
 	// Initialize the shader to be used for the blobs
 	RESOURCEMANAGER.LoadShader("blobs.vs", "blobs.fs", nullptr, "Blobs");
-	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 
 	// Add blobs
-	Blobs.push_back(Blob(glm::vec3(1.f), glm::vec3(Resolution / 2.f), 15.f));
+	Blobs.push_back(Blob(glm::vec3(0.f), glm::vec3(Resolution / 2.f), MAIN_RADIUS)); // Main blob
+
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+
+	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("MainBlobPos", Blobs[0].Position);
 }
