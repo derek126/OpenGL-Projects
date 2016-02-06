@@ -2,11 +2,14 @@
 #include <string>
 
 #include "GameManager.h"
+#include "GameController.h"
 #include "ResourceManager.h"
 
 GameManager::GameManager() :
 	Window(nullptr),
-	Controller(nullptr)
+	Controller(nullptr),
+	TargetFrametime(1.0 / 60.0),
+	ClearColor(0.16f, 0.18f, 0.22f, 1.0f)
 {
 	if (!glfwInit())
 	{
@@ -33,6 +36,16 @@ GameManager& GameManager::GetInstance()
 {
 	static GameManager Instance;
 	return Instance;
+}
+
+void GameManager::SetTargetFrametime(const GLuint& Rate)
+{
+	TargetFrametime = 1.0 / static_cast<GLdouble>(Rate);
+}
+
+void GameManager::SetClearColor(const glm::vec4& Color)
+{
+	ClearColor = Color;
 }
 
 GLboolean GameManager::Initialize(GameController* NewController)
@@ -87,23 +100,22 @@ void GameManager::Run()
 		if (currentFrame - frameTime >= 1.0)
 		{
 			// Shows frame time in the window header
-			glfwSetWindowTitle(Window, (Controller->Title + std::string(" ") + std::to_string(1000.0 / (double)fpsCounter) + " ms/frame\n").c_str());
+			glfwSetWindowTitle(Window, (Controller->Title + std::string(" ") + std::to_string(1000.0 / static_cast<GLdouble>(fpsCounter)) + " ms/frame\n").c_str());
 			fpsCounter = 0;
 			frameTime += 1.0;
 		}
 
 		accumulator += deltaTime;
-		while (accumulator >= TARGET_FRAMERATE)
+		while (accumulator >= TargetFrametime)
 		{
 			// Check for events, process any input, and then update the controller
 			glfwPollEvents();
-			//Controller->ProcessInput(TARGET_FRAMERATE);
-			Controller->Update(TARGET_FRAMERATE);
-			accumulator -= TARGET_FRAMERATE;
+			Controller->Update(TargetFrametime);
+			accumulator -= TargetFrametime;
 		}
 
 		// Render the controller
-		glClearColor(0.16f, 0.18f, 0.22f, 1.0f);
+		glClearColor(ClearColor.r, ClearColor.g, ClearColor.b, ClearColor.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Controller->Render();
 

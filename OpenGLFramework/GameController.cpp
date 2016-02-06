@@ -1,5 +1,4 @@
 #include "GameController.h"
-#include "GameManager.h"
 #include "ResourceManager.h"
 
 GameController::GameController() :

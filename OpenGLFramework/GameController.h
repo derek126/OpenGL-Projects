@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
+#include "GameManager.h"
 
 /*
 * An abstract base class meant to house the logic for a game
@@ -42,5 +43,5 @@ protected:
 	GLFWwindow* Window;
 	GLchar* Title;
 	EProjectionType ProjectionType;
-	Camera* Camera;
+	class Camera* Camera;
 };

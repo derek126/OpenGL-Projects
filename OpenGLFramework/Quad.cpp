@@ -1,7 +1,5 @@
 #include "Quad.h"
 
-#include <SOIL.h>
-
 Quad::Quad()
 {
 	GLfloat vertices[] = {

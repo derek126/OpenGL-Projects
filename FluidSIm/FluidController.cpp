@@ -28,10 +28,14 @@ FluidController::~FluidController()
 
 void FluidController::Initialize()
 {
+	GameController::Initialize();
+
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(ScreenX, ScreenY);
 
-	//Camera->SetPosition(glm::vec3(0.f, 0.f, 5.0f));
+	// Set the target framerate
+	GAMEMANAGER.SetTargetFrametime(30);
+
 	Camera->SetPosition(glm::vec3(50.f, 25.f, 80.0f));
 	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));

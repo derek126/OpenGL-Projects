@@ -1,5 +1,7 @@
 #pragma once
 
+#include <GL\glew.h>
+#include <GLFW\glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -7,12 +9,9 @@
 #include <memory>
 #include <vector>
 
-#include "GameController.h"
-
 #define GAMEMANAGER GameManager::GetInstance()
 #define DEFAULT_SCREENWIDTH 800
 #define DEFAULT_SCREENHEIGHT 600
-#define TARGET_FRAMERATE 1.0 / 60.0
 
 /*
 * The all knowing singleton 'god' object for our game
@@ -30,7 +29,13 @@ public:
 	static GameManager& GetInstance();
 
 	// Create the window and does other various setup
-	GLboolean Initialize(GameController* NewController);
+	GLboolean Initialize(class GameController* NewController);
+
+	// Sets the target framerate
+	void SetTargetFrametime(const GLuint& Rate);
+
+	// Sets clear color of the window
+	void SetClearColor(const glm::vec4& Color);
 
 	// Initiate the gameloop for the controller
 	void Run();
@@ -39,7 +44,9 @@ private:
 
 	// State
 	GLFWwindow* Window;
-	std::unique_ptr<GameController> Controller;
+	std::unique_ptr<class GameController> Controller;
+	GLdouble TargetFrametime;
+	glm::vec4 ClearColor;
 
 	// Callbacks
 	static void Key_Callback(GLFWwindow* Window, GLint Key, GLint Scancode, GLint Action, GLint Mode);
