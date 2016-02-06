@@ -6,13 +6,13 @@
 
 FluidController::FluidController()
 {
-	Grid.resize(GridSize);
-	for (unsigned i = 0; i < GridSize; i++)
+	Grid.resize(Resolution);
+	for (unsigned i = 0; i < Resolution; i++)
 	{
-		Grid[i].resize(GridSize);
-		for (unsigned j = 0; j < GridSize; j++)
+		Grid[i].resize(Resolution);
+		for (unsigned j = 0; j < Resolution; j++)
 		{
-			Grid[i][j].resize(GridSize);
+			Grid[i][j].resize(Resolution);
 		}
 	}
 }
@@ -35,9 +35,6 @@ void FluidController::Initialize()
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(ScreenX, ScreenY);
 
-	// Set the target framerate
-	GAMEMANAGER.SetTargetFrametime(30);
-
 	Camera->SetPosition(glm::vec3(50.f, 25.f, 80.0f));
 	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
@@ -58,20 +55,28 @@ void FluidController::Initialize()
 
 void FluidController::Update(const GLdouble& dt)
 {
+	// Wait for the scene to fully load
+	static GLdouble accum = 0;
+	if (accum < 5.f)
+	{
+		accum += dt;
+		return;
+	}
+
 	// Translate the metaballs based on their velocities
 	for (GLuint i = 0; i < Blobs.size(); i++)
 	{
-		if (Blobs[i].Position.x <= 0 || Blobs[i].Position.x >= GridSize - 1)
+		if (Blobs[i].Position.x <= 0 || Blobs[i].Position.x >= Resolution - 1)
 		{
 			Blobs[i].Velocity.x = -Blobs[i].Velocity.x;
 		}
 
-		if (Blobs[i].Position.y <= 0 || Blobs[i].Position.y >= GridSize - 1)
+		if (Blobs[i].Position.y <= 0 || Blobs[i].Position.y >= Resolution - 1)
 		{
 			Blobs[i].Velocity.y = -Blobs[i].Velocity.y;
 		}
 
-		if (Blobs[i].Position.z <= 0 || Blobs[i].Position.z >= GridSize - 1)
+		if (Blobs[i].Position.z <= 0 || Blobs[i].Position.z >= Resolution - 1)
 		{
 			Blobs[i].Velocity.z = -Blobs[i].Velocity.z;
 		}
@@ -79,12 +84,13 @@ void FluidController::Update(const GLdouble& dt)
 		Blobs[i].Position += Blobs[i].Velocity * static_cast<float>(dt);
 	}
 
+
 	// Compute field strength at each
-	for (GLuint i = 0; i < GridSize; i++)
+	for (GLuint i = 0; i < Resolution; i++)
 	{
-		for (GLuint j = 0; j < GridSize; j++)
+		for (GLuint j = 0; j < Resolution; j++)
 		{
-			for (GLuint k = 0; k < GridSize; k++)
+			for (GLuint k = 0; k < Resolution; k++)
 			{
 				Grid[i][j][k] = ComputeVoxel(i, j, k);
 			}
@@ -258,7 +264,5 @@ void FluidController::InitBlobs()
 	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 
 	// Add blobs
-	Blobs.push_back(Blob(glm::vec3(GridSize / 2.f)));
-	Blobs.push_back(Blob(glm::vec3(GridSize / 2.f)));
-	Blobs.push_back(Blob(glm::vec3(GridSize / 2.f)));
+	Blobs.push_back(Blob(glm::vec3(1.f), glm::vec3(Resolution / 2.f), 15.f));
 }

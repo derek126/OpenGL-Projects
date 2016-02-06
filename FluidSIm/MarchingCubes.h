@@ -23,8 +23,8 @@ public:
 private:
 
 	GLfloat GetOffset(const GLfloat& v1, const GLfloat& v2) const;
-	std::array<GLfloat, 8> MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z) const;
-	void MarchCube(const std::array<GLfloat, 8>& Cube, const GLuint& x, const GLuint& y, const GLuint& z);
+	void MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z);
+	void MarchCube(const GLuint& x, const GLuint& y, const GLuint& z);
 
 	// Tables
 	static std::array<std::array<GLfloat, 3>, 8> VertexOffset;
@@ -32,6 +32,10 @@ private:
 	static std::array<std::array<GLfloat, 3>, 12> EdgeDirection;
 	static std::array<GLint, 256> EdgeTable;
 	static std::array<std::array<GLint, 16>, 256> TriangleTable;
+
+	// Buffers to refrain from allocating new memory every frame...
+	std::array<glm::vec3, 12> NewVerts;
+	std::array<GLfloat, 8> Cube;
 
 	std::vector<GLuint> Indices;
 	std::vector<glm::vec3> Vertices, Normals;

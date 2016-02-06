@@ -4,7 +4,6 @@
 #include "MarchingCubes.h"
 #include "Cube.h"
 
-#include <glm/gtc/random.hpp>
 #include <vector>
 
 /*
@@ -30,10 +29,9 @@ private:
 	// Structure to contain blob data
 	struct Blob
 	{
-		Blob(const glm::vec3& GridPos) : Radius(glm::linearRand(5.f, 10.f)), Position(GridPos)
-		{
-			Velocity = glm::vec3(glm::linearRand(-5.f, 10.f), glm::linearRand(-5.f, 10.f), glm::linearRand(-5.f, 10.f));
-		};
+		Blob(const glm::vec3& Velocity, const glm::vec3& GridPos, const GLfloat Radius) : Velocity(Velocity), Radius(Radius), Position(GridPos)
+		{};
+
 		GLfloat Radius;
 		glm::vec3 Position, Velocity;
 	};
@@ -42,7 +40,7 @@ private:
 	GLfloat ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const;
 
 	// State
-	const GLuint GridSize = 42;
+	const GLuint Resolution = 32;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
 

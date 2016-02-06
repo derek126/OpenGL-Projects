@@ -347,44 +347,21 @@ void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat
 		{
 			for (GLuint z = 0; z < Grid[x][y].size(); z++)
 			{
-				MarchCube(MakeCube(Grid, x, y, z), x, y, z);
+				MakeCube(Grid, x, y, z);
+				MarchCube(x, y, z);
 			}
 		}
 	}
-
-	/*std::array<GLfloat, 8> Cube = {
-		0, 0, 0, 0, 0, 0, 0, 0
-	};
-	MarchCube(Cube, 0, 0, 0);*/
-
-	/*Vertices.push_back(glm::vec3(0.5f, 0.5f, 0.0f));
-	Vertices.push_back(glm::vec3(0.5f, -0.5f, 0.0f));
-	Vertices.push_back(glm::vec3(-0.5f, -0.5f, 0.0f));
-	Vertices.push_back(glm::vec3(-0.5f, 0.5f, 0.0f));
-
-	Normals.push_back(glm::vec3(0.f, 0.f, 1.f));
-	Normals.push_back(glm::vec3(0.f, 0.f, 1.f));
-	Normals.push_back(glm::vec3(0.f, 0.f, 1.f));
-	Normals.push_back(glm::vec3(0.f, 0.f, 1.f));
-
-	Indices.push_back(3);
-	Indices.push_back(1);
-	Indices.push_back(0);
-	Indices.push_back(3);
-	Indices.push_back(2);
-	Indices.push_back(1);*/
 }
 
 GLfloat MarchingCubes::GetOffset(const GLfloat& v1, const GLfloat& v2) const
 {
 	// Find the approximate point of intersection
-	GLfloat d = v2 - v1;
-	return (d == 0.f) ? 0.5f : (Isolevel - v1) / d;
+	return ((v2 - v1) == 0.f) ? 0.5f : (Isolevel - v1) / (v2 - v1);
 }
 
-std::array<GLfloat, 8> MarchingCubes::MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z) const
+void MarchingCubes::MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z)
 {
-	std::array<GLfloat, 8> Cube;
 	for (GLuint i = 0; i < 8; i++)
 	{
 		// Find the vertex positions components in world space
@@ -402,11 +379,9 @@ std::array<GLfloat, 8> MarchingCubes::MakeCube(const std::vector<std::vector<std
 			Cube[i] = 0.f;
 		}
 	}
-
-	return Cube;
 }
 
-void MarchingCubes::MarchCube(const std::array<GLfloat, 8>& Cube, const GLuint& ix, const GLuint& iy, const GLuint& iz)
+void MarchingCubes::MarchCube(const GLuint& ix, const GLuint& iy, const GLuint& iz)
 {
 	// Determine the "case" we are in (which vertices are inside and which are outside)
 	GLuint Index = 0;
@@ -415,7 +390,6 @@ void MarchingCubes::MarchCube(const std::array<GLfloat, 8>& Cube, const GLuint& 
 	// Either fully inside or outside of the surface
 	if (EdgeTable[Index] == 0) return;
 
-	std::array<glm::vec3, 12> NewVerts;
 	for (GLuint i = 0; i < 12; i++)
 	{
 		if ((EdgeTable[Index] & (1 << i)) != 0)
