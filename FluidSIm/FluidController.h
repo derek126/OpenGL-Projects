@@ -30,9 +30,9 @@ private:
 	// Structure to contain blob data
 	struct Blob
 	{
-		Blob(const glm::vec3& GridPos) : Radius(glm::linearRand(0.5f, 1.f)), Position(GridPos)
+		Blob(const glm::vec3& GridPos) : Radius(glm::linearRand(5.f, 10.f)), Position(GridPos)
 		{
-			Velocity = glm::vec3(glm::linearRand(-0.5f, 0.5f), glm::linearRand(-0.5f, 0.5f), glm::linearRand(-0.5f, 0.5f));
+			Velocity = glm::vec3(glm::linearRand(-5.f, 10.f), glm::linearRand(-5.f, 10.f), glm::linearRand(-5.f, 10.f));
 		};
 		GLfloat Radius;
 		glm::vec3 Position, Velocity;
@@ -41,19 +41,10 @@ private:
 	// Computes the charge strength at each griod location
 	GLfloat ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const;
 
-	GLfloat GridToWorldX(const GLuint& gx) const;
-	GLfloat GridToWorldY(const GLuint& gy) const;
-	GLfloat GridToWorldZ(const GLuint& gz) const;
-
-	GLuint WorldToGridX(const GLfloat& gx) const;
-	GLuint WorldToGridY(const GLfloat& gy) const;
-	GLuint WorldToGridZ(const GLfloat& gz) const;
-
 	// State
-	const GLuint GridSize = 32;
+	const GLuint GridSize = 42;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
-	GLfloat Scale;
 
 	// Functions to initialize various aspects of the scene
 	void InitSkybox();

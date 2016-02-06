@@ -377,6 +377,7 @@ void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat
 
 GLfloat MarchingCubes::GetOffset(const GLfloat& v1, const GLfloat& v2) const
 {
+	// Find the approximate point of intersection
 	GLfloat d = v2 - v1;
 	return (d == 0.f) ? 0.5f : (Isolevel - v1) / d;
 }
@@ -386,10 +387,12 @@ std::array<GLfloat, 8> MarchingCubes::MakeCube(const std::vector<std::vector<std
 	std::array<GLfloat, 8> Cube;
 	for (GLuint i = 0; i < 8; i++)
 	{
+		// Find the vertex positions components in world space
 		GLuint ix = x + static_cast<GLuint>(VertexOffset[i][0]);
 		GLuint iy = y + static_cast<GLuint>(VertexOffset[i][1]);
 		GLuint iz = z + static_cast<GLuint>(VertexOffset[i][2]);
 
+		// If the corner of the cube us within the grid bounds, assign that value
 		if (ix < Grid.size() && iy < Grid[ix].size() && iz < Grid[ix][iy].size())
 		{
 			Cube[i] = Grid[ix][iy][iz];
@@ -405,9 +408,11 @@ std::array<GLfloat, 8> MarchingCubes::MakeCube(const std::vector<std::vector<std
 
 void MarchingCubes::MarchCube(const std::array<GLfloat, 8>& Cube, const GLuint& ix, const GLuint& iy, const GLuint& iz)
 {
+	// Determine the "case" we are in (which vertices are inside and which are outside)
 	GLuint Index = 0;
 	for (GLuint i = 0; i < 8; i++) if (Cube[i] <= Isolevel) Index |= 1 << i;
 
+	// Either fully inside or outside of the surface
 	if (EdgeTable[Index] == 0) return;
 
 	std::array<glm::vec3, 12> NewVerts;
@@ -417,6 +422,7 @@ void MarchingCubes::MarchCube(const std::array<GLfloat, 8>& Cube, const GLuint& 
 		{
 			GLfloat Offset = GetOffset(Cube[EdgeConnection[i][0]], Cube[EdgeConnection[i][1]]);
 
+			// Adjust the vertex from the grid position to it's correct location in world space
 			NewVerts[i].x = ix + (VertexOffset[EdgeConnection[i][0]][0] + Offset * EdgeDirection[i][0]);
 			NewVerts[i].y = iy + (VertexOffset[EdgeConnection[i][0]][1] + Offset * EdgeDirection[i][1]);
 			NewVerts[i].z = iz + (VertexOffset[EdgeConnection[i][0]][2] + Offset * EdgeDirection[i][2]);
@@ -425,7 +431,8 @@ void MarchingCubes::MarchCube(const std::array<GLfloat, 8>& Cube, const GLuint& 
 
 	for (GLuint i = 0; i < 5; i++)
 	{
-		if (TriangleTable[Index][3 * i] < 0) break;
+		// -1 denotes that there are no more triangles in this cube
+		if (TriangleTable[Index][3 * i] == -1) break;
 
 		GLint idx = Vertices.size();
 

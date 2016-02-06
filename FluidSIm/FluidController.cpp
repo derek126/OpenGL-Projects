@@ -4,8 +4,7 @@
 #define ScreenX 1920
 #define ScreenY 1080
 
-FluidController::FluidController() :
-	Scale(5.f / GridSize)
+FluidController::FluidController()
 {
 	Grid.resize(GridSize);
 	for (unsigned i = 0; i < GridSize; i++)
@@ -21,9 +20,12 @@ FluidController::FluidController() :
 FluidController::~FluidController()
 {
 	glDeleteVertexArrays(1, &Buffers["VAO"]);
+	glDeleteVertexArrays(1, &Buffers["SkyboxVAO"]);
+
 	glDeleteBuffers(1, &Buffers["Vertices"]);
 	glDeleteBuffers(1, &Buffers["Normals"]);
 	glDeleteBuffers(1, &Buffers["EBO"]);
+	glDeleteBuffers(1, &Buffers["SkyboxVBO"]);
 }
 
 void FluidController::Initialize()
@@ -59,21 +61,17 @@ void FluidController::Update(const GLdouble& dt)
 	// Translate the metaballs based on their velocities
 	for (GLuint i = 0; i < Blobs.size(); i++)
 	{
-		GLuint gx = WorldToGridX(Blobs[i].Position.x),
-			gy = WorldToGridY(Blobs[i].Position.y),
-			gz = WorldToGridZ(Blobs[i].Position.z);
-
-		if (gx == 0 || gx >= GridSize - 1)
+		if (Blobs[i].Position.x <= 0 || Blobs[i].Position.x >= GridSize - 1)
 		{
 			Blobs[i].Velocity.x = -Blobs[i].Velocity.x;
 		}
 
-		if (gy == 0 || gy >= GridSize - 1)
+		if (Blobs[i].Position.y <= 0 || Blobs[i].Position.y >= GridSize - 1)
 		{
 			Blobs[i].Velocity.y = -Blobs[i].Velocity.y;
 		}
 
-		if (gz == 0 || gz >= GridSize - 1)
+		if (Blobs[i].Position.z <= 0 || Blobs[i].Position.z >= GridSize - 1)
 		{
 			Blobs[i].Velocity.z = -Blobs[i].Velocity.z;
 		}
@@ -121,8 +119,6 @@ void FluidController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 	}
 }
 
-#include <iostream>
-#include <glm/gtx/string_cast.hpp>
 void FluidController::Render()
 {
 	// Render blobs
@@ -158,43 +154,13 @@ void FluidController::Render()
 
 GLfloat FluidController::ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const
 {
-	GLfloat val = 0, WorldX = GridToWorldX(gx), WorldY = GridToWorldY(gy), WorldZ = GridToWorldZ(gz);
+	GLfloat val = 0;
 	for (unsigned i = 0; i < Blobs.size(); i++)
 	{
-		val += glm::pow(Blobs[i].Radius, 2) / (glm::pow(WorldX - Blobs[i].Position.x, 2) + glm::pow(WorldY - Blobs[i].Position.y, 2) + glm::pow(WorldZ - Blobs[i].Position.z, 2));
+		val += glm::pow(Blobs[i].Radius, 2) / (glm::pow(gx - Blobs[i].Position.x, 2) + glm::pow(gy - Blobs[i].Position.y, 2) + glm::pow(gz - Blobs[i].Position.z, 2));
 	}
 
 	return val;
-}
-
-GLfloat FluidController::GridToWorldX(const GLuint& gx) const
-{
-	return gx * Scale;
-}
-
-GLfloat FluidController::GridToWorldY(const GLuint& gy) const
-{
-	return gy * Scale;
-}
-
-GLfloat FluidController::GridToWorldZ(const GLuint& gz) const
-{
-	return gz * Scale;
-}
-
-GLuint FluidController::WorldToGridX(const GLfloat& wx) const
-{
-	return static_cast<GLuint>(wx / Scale);
-}
-
-GLuint FluidController::WorldToGridY(const GLfloat& wy) const
-{
-	return static_cast<GLuint>(wy / Scale);
-}
-
-GLuint FluidController::WorldToGridZ(const GLfloat& wz) const
-{
-	return static_cast<GLuint>(wz / Scale);
 }
 
 void FluidController::InitSkybox()
@@ -292,10 +258,7 @@ void FluidController::InitBlobs()
 	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 
 	// Add blobs
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
-	Blobs.push_back(Blob(glm::vec3(GridToWorldX(GridSize / 2), GridToWorldY(GridSize / 2), GridToWorldZ(GridSize / 2))));
+	Blobs.push_back(Blob(glm::vec3(GridSize / 2.f)));
+	Blobs.push_back(Blob(glm::vec3(GridSize / 2.f)));
+	Blobs.push_back(Blob(glm::vec3(GridSize / 2.f)));
 }
