@@ -22,5 +22,5 @@ void main()
 	vs_out.Normal = mat3(transpose(inverse(View))) * Normal;
 	vs_out.FragPos = vec3(View * vec4(Position, 1.0f));
 
-    gl_Position = Projection * View * vec4(Position.x, Position.y, Position.z, 1.0);
+    gl_Position = Projection * View * vec4(Position, 1.0);
 }
