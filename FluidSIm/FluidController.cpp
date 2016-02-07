@@ -8,8 +8,8 @@
 
 #define MIN_VELOCITY -5.f
 #define MAX_VELOCITY 5.f
-#define MAIN_RADIUS 6.f
-#define SECONDARY_RADIUS 3.f
+#define MAIN_RADIUS 5.f
+#define SECONDARY_RADIUS 2.5f
 
 FluidController::FluidController()
 {

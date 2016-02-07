@@ -25,6 +25,7 @@ private:
 	GLfloat GetOffset(const GLfloat& v1, const GLfloat& v2) const;
 	void MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z);
 	void MarchCube(const GLuint& x, const GLuint& y, const GLuint& z);
+	void CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid);
 
 	// Tables
 	static std::array<std::array<GLfloat, 3>, 8> VertexOffset;

@@ -352,6 +352,53 @@ void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat
 			}
 		}
 	}
+
+	CalculateNormals(Grid);
+}
+
+//TODO: NEEDS OPTIMIZING
+void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
+{
+	std::array<std::array<std::array<glm::vec3, 32>, 32>, 32> N;
+	for (GLuint x = 2; x < Grid.size() - 2; x++)
+	{
+		for (GLuint y = 2; y < Grid[x].size() - 2; y++)
+		{
+			for (GLuint z = 2; z < Grid[x][y].size() - 2; z++)
+			{
+				GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
+				GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
+				GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
+
+				N[x][y][z] = glm::normalize(glm::vec3(dx, dy, dz));
+			}
+		}
+	}
+
+	auto TriLERPNormal = [N, Grid](const glm::vec3& pos)
+	{
+		GLint x = static_cast<GLint>(pos.x);
+		GLint y = static_cast<GLint>(pos.y);
+		GLint z = static_cast<GLint>(pos.z);
+
+		GLfloat fx = pos.x - x;
+		GLfloat fy = pos.y - y;
+		GLfloat fz = pos.z - z;
+
+		glm::vec3 x0 = N[x][y][z] * (1.0f - fx) + N[x + 1][y][z] * fx;
+		glm::vec3 x1 = N[x][y][z + 1] * (1.0f - fx) + N[x + 1][y][z + 1] * fx;
+
+		glm::vec3 x2 = N[x][y + 1][z] * (1.0f - fx) + N[x + 1][y + 1][z] * fx;
+		glm::vec3 x3 = N[x][y + 1][z + 1] * (1.0f - fx) + N[x + 1][y + 1][z + 1] * fx;
+
+		glm::vec3 z0 = x0 * (1.0f - fz) + x1 * fz;
+		glm::vec3 z1 = x2 * (1.0f - fz) + x3 * fz;
+
+		return z0 * (1.0f - fy) + z1 * fy;
+	};
+
+	for (GLuint i = 0; i < Vertices.size(); i++)
+		Normals.push_back(TriLERPNormal(Vertices[i]));
 }
 
 GLfloat MarchingCubes::GetOffset(const GLfloat& v1, const GLfloat& v2) const
@@ -422,10 +469,10 @@ void MarchingCubes::MarchCube(const GLuint& ix, const GLuint& iy, const GLuint& 
 		Indices.push_back(idx + 2);
 		Vertices.push_back(NewVerts[Vert]);
 
-		glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
-		Normals.push_back(Normal);
-		Normals.push_back(Normal);
-		Normals.push_back(Normal);
+		//glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
+		//Normals.push_back(Normal);
+		//Normals.push_back(Normal);
+		//Normals.push_back(Normal);
 	}
 }
 
