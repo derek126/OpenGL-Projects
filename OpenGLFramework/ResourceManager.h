@@ -31,22 +31,22 @@ public:
 	void SetViewMatrix(const glm::mat4& View);
 
 	// Loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
-	Shader LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, const std::string& Name);
+	Shader& LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, const std::string& Name);
 
 	// Retrieves a stored shader
-	Shader GetShader(const std::string& Name);
+	Shader& GetShader(const std::string& Name);
 
 	// Loads (and generates) a texture from file
-	Texture2D LoadTexture2D(const GLchar *File, const GLboolean& Alpha, const std::string& Name);
+	Texture2D& LoadTexture2D(const GLchar *File, const GLboolean& Alpha, const std::string& Name);
 
 	// Loads (and generates) a cubemap from provided files
-	Texture3D LoadTexture3D(const std::map<std::string, GLchar*> File, const GLboolean& Alpha, const std::string& Name);
+	Texture3D& LoadTexture3D(const std::map<std::string, GLchar*> File, const GLboolean& Alpha, const std::string& Name);
 
 	// Retrieves a stored texture
-	Texture2D GetTexture2D(const std::string& Name);
+	Texture2D& GetTexture2D(const std::string& Name);
 
 	// Retrieves a stored cubemap
-	Texture3D GetTexture3D(const std::string& Name);
+	Texture3D& GetTexture3D(const std::string& Name);
 
 	// Properly de-allocates all loaded resources
 	void Clear();

@@ -2,7 +2,6 @@
 
 #include "GameController.h"
 #include "MarchingCubes.h"
-#include "Cube.h"
 
 #include <vector>
 
@@ -47,6 +46,7 @@ private:
 	// Functions to initialize various aspects of the scene
 	void InitSkybox();
 	void InitBlobs();
+	void InitGrass();
 
 	MarchingCubes Mesh; // Computes the mesh, retrieve vertices, indices and normals from here
 	std::map<std::string, GLuint> Buffers; // Buffer storage

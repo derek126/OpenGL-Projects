@@ -14,5 +14,7 @@
     <None Include="blobs.fs" />
     <None Include="skybox.vs" />
     <None Include="skybox.fs" />
+    <None Include="grass.vs" />
+    <None Include="grass.fs" />
   </ItemGroup>
 </Project>

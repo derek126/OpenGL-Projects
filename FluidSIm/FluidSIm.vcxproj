@@ -137,6 +137,8 @@
   <ItemGroup>
     <None Include="blobs.fs" />
     <None Include="blobs.vs" />
+    <None Include="grass.fs" />
+    <None Include="grass.vs" />
     <None Include="skybox.fs" />
     <None Include="skybox.vs" />
   </ItemGroup>

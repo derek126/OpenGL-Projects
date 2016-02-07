@@ -53,7 +53,7 @@ void ResourceManager::SetViewMatrix(const glm::mat4& View)
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, const std::string& Name)
+Shader& ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, const std::string& Name)
 {
 	if (!bIsUBOInit) InitUBO();
 
@@ -65,29 +65,29 @@ Shader ResourceManager::LoadShader(const GLchar *vShaderFile, const GLchar *fSha
 	return Shaders[Name];
 }
 
-Shader ResourceManager::GetShader(const std::string& Name)
+Shader& ResourceManager::GetShader(const std::string& Name)
 {
 	return Shaders[Name];
 }
 
-Texture2D ResourceManager::LoadTexture2D(const GLchar *File, const GLboolean& Alpha, const std::string& Name)
+Texture2D& ResourceManager::LoadTexture2D(const GLchar *File, const GLboolean& Alpha, const std::string& Name)
 {
 	Textures2D[Name] = LoadTexture2DFromFile(File, Alpha);
 	return Textures2D[Name];
 }
 
-Texture2D ResourceManager::GetTexture2D(const std::string& Name)
+Texture2D& ResourceManager::GetTexture2D(const std::string& Name)
 {
 	return Textures2D[Name];
 }
 
-Texture3D ResourceManager::LoadTexture3D(const std::map<std::string, GLchar*> File, const GLboolean& Alpha, const std::string& Name)
+Texture3D& ResourceManager::LoadTexture3D(const std::map<std::string, GLchar*> File, const GLboolean& Alpha, const std::string& Name)
 {
 	Textures3D[Name] = LoadTexture3DFromFile(File, Alpha);
 	return Textures3D[Name];
 }
 
-Texture3D ResourceManager::GetTexture3D(const std::string& Name)
+Texture3D& ResourceManager::GetTexture3D(const std::string& Name)
 {
 	return Textures3D[Name];
 }
