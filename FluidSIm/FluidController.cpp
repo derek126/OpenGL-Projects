@@ -8,8 +8,8 @@
 
 #define MIN_VELOCITY -5.f
 #define MAX_VELOCITY 5.f
-#define MAIN_RADIUS 8.f
-#define SECONDARY_RADIUS 2.5f
+#define MAIN_RADIUS 6.f
+#define SECONDARY_RADIUS 3.f
 
 FluidController::FluidController()
 {
@@ -69,27 +69,6 @@ void FluidController::Update(const GLdouble& dt)
 		accum += dt;
 		return;
 	}
-
-	// Translate the metaballs based on their velocities
-	/*for (GLuint i = 0; i < Blobs.size(); i++)
-	{
-		if (Blobs[i].Position.x <= 0 || Blobs[i].Position.x >= Resolution - 1)
-		{
-			Blobs[i].Velocity.x = -Blobs[i].Velocity.x;
-		}
-
-		if (Blobs[i].Position.y <= 0 || Blobs[i].Position.y >= Resolution - 1)
-		{
-			Blobs[i].Velocity.y = -Blobs[i].Velocity.y;
-		}
-
-		if (Blobs[i].Position.z <= 0 || Blobs[i].Position.z >= Resolution - 1)
-		{
-			Blobs[i].Velocity.z = -Blobs[i].Velocity.z;
-		}
-
-		Blobs[i].Position += Blobs[i].Velocity * static_cast<float>(dt);
-	}*/
 
 	for (GLuint i = 1; i < Blobs.size(); i++)
 	{
