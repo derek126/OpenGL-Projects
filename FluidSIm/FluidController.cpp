@@ -70,11 +70,12 @@ void FluidController::Update(const GLdouble& dt)
 {
 	// Wait for the scene to fully load
 	static GLdouble accum = 0;
-	if (accum < 5.f)
+	accum += dt;
+	if (accum < 2.5f)
 	{
-		accum += dt;
 		return;
 	}
+	RESOURCEMANAGER.GetShader("Grass").SetFloat("Disp", static_cast<GLfloat>(glm::sin(accum / 2.f) / 2.5f), true);
 
 	for (GLuint i = 1; i < Blobs.size(); i++)
 	{
@@ -153,6 +154,7 @@ void FluidController::Render()
 	glDisable(GL_CULL_FACE);
 	glBindVertexArray(Buffers["GrassVAO"]);
 	RESOURCEMANAGER.GetShader("Grass").Use();
+	//RESOURCEMANAGER.GetShader("Grass").SetFloat("Disp", 1.f, true);
 	RESOURCEMANAGER.GetTexture2D("Grass").Bind();
 	glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 14400);
 	glBindVertexArray(0);

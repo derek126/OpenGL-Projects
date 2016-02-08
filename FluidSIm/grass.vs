@@ -16,8 +16,13 @@ out VS_OUT
 	vec2 UV;
 } vs_out;
 
+uniform float Disp;
+
 void main()
 {
-    gl_Position = Projection * View * Model * vec4(Position, 1.0);
+	vec3 P = Position;
+	if (UV.y >= 0.9) P += vec3(Disp, 0.f, 0.f);
+
+    gl_Position = Projection * View * Model * vec4(P, 1.0);
 	vs_out.UV = UV;
 }
