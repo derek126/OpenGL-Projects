@@ -171,13 +171,13 @@ Texture2D ResourceManager::LoadTexture2DFromFile(const GLchar *File, const GLboo
 	Texture2D texture;
 	if (Alpha)
 	{
-		texture.Internal_Format = GL_RGBA;
-		texture.Image_Format = GL_RGBA;
+		texture.InternalFormat = GL_RGBA;
+		texture.ImageFormat = GL_RGBA;
 	}
 
 	// Load image
 	GLint width, height;
-	GLubyte* image = SOIL_load_image(File, &width, &height, 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	GLubyte* image = SOIL_load_image(File, &width, &height, 0, texture.GetImageFormat() == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
 	if (!image)
 	{
 		std::cerr << "ERROR::TEXTURE: Could not load texture from file." << std::endl;
@@ -198,20 +198,20 @@ Texture3D ResourceManager::LoadTexture3DFromFile(const std::map<std::string, GLc
 	Texture3D texture;
 	if (Alpha)
 	{
-		texture.Internal_Format = GL_RGBA;
-		texture.Image_Format = GL_RGBA;
+		texture.InternalFormat = GL_RGBA;
+		texture.ImageFormat = GL_RGBA;
 	}
 
 	// Load image
 	std::map<std::string, GLint> Width, Height;
 	std::map<std::string, GLubyte*> Image;
 
-	Image["Right"] = SOIL_load_image(File.at("Right"), &Width["Right"], &Height["Right"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
-	Image["Left"] = SOIL_load_image(File.at("Left"), &Width["Left"], &Height["Left"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
-	Image["Top"] = SOIL_load_image(File.at("Top"), &Width["Top"], &Height["Top"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
-	Image["Bottom"] = SOIL_load_image(File.at("Bottom"), &Width["Bottom"], &Height["Bottom"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
-	Image["Back"] = SOIL_load_image(File.at("Back"), &Width["Back"], &Height["Back"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
-	Image["Front"] = SOIL_load_image(File.at("Front"), &Width["Front"], &Height["Front"], 0, texture.Image_Format == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Right"] = SOIL_load_image(File.at("Right"), &Width["Right"], &Height["Right"], 0, texture.GetImageFormat() == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Left"] = SOIL_load_image(File.at("Left"), &Width["Left"], &Height["Left"], 0, texture.GetImageFormat() == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Top"] = SOIL_load_image(File.at("Top"), &Width["Top"], &Height["Top"], 0, texture.GetImageFormat() == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Bottom"] = SOIL_load_image(File.at("Bottom"), &Width["Bottom"], &Height["Bottom"], 0, texture.GetImageFormat() == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Back"] = SOIL_load_image(File.at("Back"), &Width["Back"], &Height["Back"], 0, texture.GetImageFormat() == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
+	Image["Front"] = SOIL_load_image(File.at("Front"), &Width["Front"], &Height["Front"], 0, texture.GetImageFormat() == GL_RGBA ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
 
 	if (!Image["Right"] || !Image["Left"] || !Image["Top"] || !Image["Bottom"] || !Image["Back"] || !Image["Front"])
 	{

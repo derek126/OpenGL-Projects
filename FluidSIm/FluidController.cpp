@@ -154,7 +154,7 @@ void FluidController::Render()
 	glBindVertexArray(Buffers["GrassVAO"]);
 	RESOURCEMANAGER.GetShader("Grass").Use();
 	RESOURCEMANAGER.GetTexture2D("Grass").Bind();
-	glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 10000);
+	glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 14400);
 	glBindVertexArray(0);
 	glEnable(GL_CULL_FACE);
 
@@ -233,7 +233,7 @@ void FluidController::InitSkybox()
 	Images["Bottom"] = "Assets/bottom.bmp";
 	Images["Back"] = "Assets/back.bmp";
 	Images["Front"] = "Assets/front.bmp";
-	RESOURCEMANAGER.LoadTexture3D(Images, false, "Skybox").Bind();
+	RESOURCEMANAGER.LoadTexture3D(Images, false, "Skybox").SetWrapS(GL_CLAMP_TO_EDGE).SetWrapT(GL_CLAMP_TO_EDGE).SetWrapR(GL_CLAMP_TO_EDGE).Bind();
 
 	// Init buffers
 	GLuint SkyboxVAO, SkyboxVBO;
@@ -285,8 +285,6 @@ void FluidController::InitBlobs()
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
-
-	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("MainBlobPos", Blobs[0].Position);
 }
 
 void FluidController::InitGrass()
@@ -351,14 +349,14 @@ void FluidController::InitGrass()
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
 
 	// Setup the offsets for the instances of the grass
-	std::array<glm::mat4, 10000> ModelMats;
-	for (GLuint i = 0; i < 100; i++)
+	std::array<glm::mat4, 14400> ModelMats;
+	for (GLuint i = 0; i < 120; i++)
 	{
-		for (GLuint j = 0; j < 100; j++)
+		for (GLuint j = 0; j < 120; j++)
 		{
-			ModelMats[100 * i + j] = glm::translate(glm::mat4(), glm::vec3(static_cast<GLint>(i) * 5 - 420, glm::sin(i * j) * 2.5 - 2, static_cast<GLint>(j) * 5 - 420));
-			ModelMats[100 * i + j] = glm::scale(ModelMats[100 * i + j], glm::vec3(10.f, 10.f, 10.f));
-			ModelMats[100 * i + j] = glm::rotate(ModelMats[100 * i + j], glm::linearRand(-5.f, 5.f), glm::vec3(0.f, 1.f, 0.f));
+			ModelMats[120 * i + j] = glm::translate(glm::mat4(), glm::vec3(static_cast<GLint>(i) * 5 - 464, glm::sin(i / 8.f + 10) * glm::sin(j / 8.f + 10) * 10, static_cast<GLint>(j) * 5 - 464));
+			ModelMats[120 * i + j] = glm::scale(ModelMats[120 * i + j], glm::vec3(8.f, 8.f, 8.f));
+			ModelMats[120 * i + j] = glm::rotate(ModelMats[120 * i + j], glm::linearRand(-10.f, 10.f), glm::vec3(0.f, 1.f, 0.f));
 		}
 	}
 
@@ -389,5 +387,5 @@ void FluidController::InitGrass()
 
 	// Initialize the shader to be used for the grass
 	RESOURCEMANAGER.LoadShader("grass.vs", "grass.fs", nullptr, "Grass");
-	RESOURCEMANAGER.LoadTexture2D("Assets/billboardgrass.png", GL_TRUE, "Grass");
+	RESOURCEMANAGER.LoadTexture2D("Assets/billboardgrass.png", GL_TRUE, "Grass").SetWrapS(GL_CLAMP_TO_EDGE).SetWrapT(GL_CLAMP_TO_EDGE);
 }
