@@ -21,7 +21,7 @@ uniform float Disp;
 void main()
 {
 	vec3 P = Position;
-	if (UV.y >= 0.9) P += vec3(Disp, 0.f, 0.f);
+	if (UV.y >= 0.9) P += vec3(Disp / 2.f, 0.f, Disp / 2.f);
 
     gl_Position = Projection * View * Model * vec4(P, 1.0);
 	vs_out.UV = UV;

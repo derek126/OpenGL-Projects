@@ -24,7 +24,7 @@ void GameController::SetScreenDimensions(const GLuint& Width, const GLuint& Heig
 
 	if (ProjectionType == GameController::EProjectionType::PERSP)
 	{
-		RESOURCEMANAGER.SetProjectionMatrix(glm::perspective(glm::radians(45.0), static_cast<GLdouble>(Width) / Height, 0.1, 1000.0));
+		RESOURCEMANAGER.SetProjectionMatrix(glm::infinitePerspective(glm::radians(45.0), static_cast<GLdouble>(Width) / Height, 0.1));
 	}
 	else
 	{

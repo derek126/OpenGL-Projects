@@ -75,7 +75,7 @@ void FluidController::Update(const GLdouble& dt)
 	{
 		return;
 	}
-	RESOURCEMANAGER.GetShader("Grass").SetFloat("Disp", static_cast<GLfloat>(glm::sin(accum / 2.f) / 2.5f), true);
+	RESOURCEMANAGER.GetShader("Grass").SetFloat("Disp", static_cast<GLfloat>(glm::sin(accum / 2.f) / 4.f), true);
 
 	for (GLuint i = 1; i < Blobs.size(); i++)
 	{
@@ -357,8 +357,8 @@ void FluidController::InitGrass()
 		for (GLuint j = 0; j < 120; j++)
 		{
 			ModelMats[120 * i + j] = glm::translate(glm::mat4(), glm::vec3(static_cast<GLint>(i) * 5 - 464, glm::sin(i / 8.f + 10) * glm::sin(j / 8.f + 10) * 10, static_cast<GLint>(j) * 5 - 464));
-			ModelMats[120 * i + j] = glm::scale(ModelMats[120 * i + j], glm::vec3(8.f, 8.f, 8.f));
 			ModelMats[120 * i + j] = glm::rotate(ModelMats[120 * i + j], glm::linearRand(-10.f, 10.f), glm::vec3(0.f, 1.f, 0.f));
+			ModelMats[120 * i + j] = glm::scale(ModelMats[120 * i + j], glm::vec3(8.f, 8.f, 8.f));
 		}
 	}
 
