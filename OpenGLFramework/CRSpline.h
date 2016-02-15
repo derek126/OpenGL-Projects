@@ -4,6 +4,9 @@
 #include <GL\glew.h>
 #include <glm\glm.hpp>
 
+/*
+* A catmull rom spline
+*/
 class CRSpline
 {
 public:

@@ -4,6 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+/*
+* Base camera class, allows changing orientation via mouse input
+*/
 class Camera
 {
 public:
