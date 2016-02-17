@@ -9,10 +9,14 @@ layout (std140) uniform SceneData
 {
     mat4 Projection;
     mat4 View;
+	vec3 LightDirection;
+	vec3 LightColor;
 };
 
 out VS_OUT
 {
+    vec3 Normal;
+	vec3 FragPos;
 	vec2 UV;
 } vs_out;
 
@@ -25,4 +29,6 @@ void main()
 
     gl_Position = Projection * View * Model * vec4(P, 1.0);
 	vs_out.UV = UV;
+	vs_out.Normal = mat3(transpose(inverse(View * Model))) * Normal;
+	vs_out.FragPos = vec3(View * Model * vec4(Position, 1.0f));
 }

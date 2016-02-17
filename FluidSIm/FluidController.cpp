@@ -55,6 +55,10 @@ void FluidController::Initialize()
 	// Hide the mouse cursor
 	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
+	// Set the directional light direction and color
+	RESOURCEMANAGER.SetLightDirection(glm::vec3(-1.f, -1.f, -1.f));
+	RESOURCEMANAGER.SetLightColor(glm::vec3(1.f, 1.f, 1.f));
+
 	// OpenGL configuration
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
@@ -128,6 +132,24 @@ void FluidController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 
 void FluidController::Render()
 {
+	// Render Grass
+	glDisable(GL_CULL_FACE);
+	glBindVertexArray(Buffers["GrassVAO"]);
+	RESOURCEMANAGER.GetShader("Grass").Use();
+	//RESOURCEMANAGER.GetShader("Grass").SetFloat("Disp", 1.f, true);
+	RESOURCEMANAGER.GetTexture2D("Grass").Bind();
+	glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 14400);
+	glBindVertexArray(0);
+	glEnable(GL_CULL_FACE);
+
+	//Render skybox
+	glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
+	glBindVertexArray(Buffers["SkyboxVAO"]);
+	RESOURCEMANAGER.GetShader("Skybox").Use();
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS); // Set depth function back to default
+
 	// Render blobs
 	glBindVertexArray(Buffers["VAO"]);
 
@@ -149,24 +171,6 @@ void FluidController::Render()
 	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("CameraPosition", Camera->GetPosition(), true);
 	glDrawElements(GL_TRIANGLES, Mesh.GetIndices().size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-
-	// Render Grass
-	glDisable(GL_CULL_FACE);
-	glBindVertexArray(Buffers["GrassVAO"]);
-	RESOURCEMANAGER.GetShader("Grass").Use();
-	//RESOURCEMANAGER.GetShader("Grass").SetFloat("Disp", 1.f, true);
-	RESOURCEMANAGER.GetTexture2D("Grass").Bind();
-	glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 14400);
-	glBindVertexArray(0);
-	glEnable(GL_CULL_FACE);
-
-	//Render skybox
-	glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
-	glBindVertexArray(Buffers["SkyboxVAO"]);
-	RESOURCEMANAGER.GetShader("Skybox").Use();
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-	glDepthFunc(GL_LESS); // Set depth function back to default
 }
 
 GLfloat FluidController::ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const
@@ -293,20 +297,20 @@ void FluidController::InitGrass()
 {
 	GLfloat vertices[] = {
 		// Positions            // Texture Coords   // Normals
-		0.5f,  0.5f, 0.0f,		1.0f, 1.0f,		0.f, 1.f, 0.f,
-		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,		0.f, 1.f, 0.f,
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,		0.f, 1.f, 0.f,
-		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f,		0.f, 1.f, 0.f,
+		0.5f,  0.5f, 0.0f,		1.0f, 1.0f,		0.f, -1.f, 0.f,
+		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,		0.f, -1.f, 0.f,
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,		0.f, -1.f, 0.f,
+		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f,		0.f, -1.f, 0.f,
 
-		0.5f,  0.5f, 0.5f,		1.0f, 1.0f,		0.f, 1.f, 0.f,
-		0.5f, -0.5f, 0.5f,		1.0f, 0.0f,		0.f, 1.f, 0.f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,		0.f, 1.f, 0.f,
-		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f,		0.f, 1.f, 0.f,
+		0.5f,  0.5f, 0.5f,		1.0f, 1.0f,		0.f, -1.f, 0.f,
+		0.5f, -0.5f, 0.5f,		1.0f, 0.0f,		0.f, -1.f, 0.f,
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,		0.f, -1.f, 0.f,
+		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f,		0.f, -1.f, 0.f,
 
-		0.5f,  0.5f, -0.5f,		1.0f, 1.0f,		0.f, 1.f, 0.f,
-		0.5f, -0.5f, -0.5f,		1.0f, 0.0f,		0.f, 1.f, 0.f,
-		-0.5f, -0.5f, 0.5f,		0.0f, 0.0f,		0.f, 1.f, 0.f,
-		-0.5f,  0.5f, 0.5f,		0.0f, 1.0f,		0.f, 1.f, 0.f
+		0.5f,  0.5f, -0.5f,		1.0f, 1.0f,		0.f, -1.f, 0.f,
+		0.5f, -0.5f, -0.5f,		1.0f, 0.0f,		0.f, -1.f, 0.f,
+		-0.5f, -0.5f, 0.5f,		0.0f, 0.0f,		0.f, -1.f, 0.f,
+		-0.5f,  0.5f, 0.5f,		0.0f, 1.0f,		0.f, -1.f, 0.f
 	};
 
 	GLuint indices[] = {

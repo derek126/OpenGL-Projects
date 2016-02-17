@@ -29,6 +29,8 @@ public:
 	// The following functions are for adding to or updating the shared UBO
 	void SetProjectionMatrix(const glm::mat4& Projection);
 	void SetViewMatrix(const glm::mat4& View);
+	void SetLightDirection(const glm::vec3& Direction);
+	void SetLightColor(const glm::vec3& Color);
 
 	// Loads (and generates) a shader program from file loading vertex, fragment (and geometry) shader's source code. If gShaderFile is not nullptr, it also loads a geometry shader
 	Shader& LoadShader(const GLchar *vShaderFile, const GLchar *fShaderFile, const GLchar *gShaderFile, const std::string& Name);
@@ -52,13 +54,6 @@ public:
 	void Clear();
 
 private:
-
-	// Global data for shaders stored in UBO
-	struct SceneData
-	{
-		glm::mat4 View;
-		glm::mat4 Projection;
-	};
 
 	// Has the UBO been initialized?
 	GLboolean bIsUBOInit;

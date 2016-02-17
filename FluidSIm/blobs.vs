@@ -7,6 +7,8 @@ layout (std140) uniform SceneData
 {
     mat4 Projection;
     mat4 View;
+	vec3 LightDirection;
+	vec3 LightColor;
 };
 
 out VS_OUT

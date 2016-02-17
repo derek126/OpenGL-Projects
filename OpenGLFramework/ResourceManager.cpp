@@ -27,10 +27,10 @@ void ResourceManager::InitUBO()
 	glGenBuffers(1, &UBO);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
-	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), NULL, GL_DYNAMIC_DRAW); // Allocate memory
+	glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + 2 * sizeof(glm::vec4), NULL, GL_DYNAMIC_DRAW); // Allocate memory
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4)); // Bind buffer point
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, UBO, 0, 2 * sizeof(glm::mat4) + 2 * sizeof(glm::vec4)); // Bind buffer point
 
 	bIsUBOInit = GL_TRUE;
 }
@@ -50,6 +50,26 @@ void ResourceManager::SetViewMatrix(const glm::mat4& View)
 
 	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(View));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ResourceManager::SetLightDirection(const glm::vec3& Direction)
+{
+	if (!bIsUBOInit) InitUBO();
+
+	glm::vec3 D = glm::normalize(Direction);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), sizeof(glm::vec3), glm::value_ptr(D));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void ResourceManager::SetLightColor(const glm::vec3& Color)
+{
+	if (!bIsUBOInit) InitUBO();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), sizeof(glm::vec3), glm::value_ptr(Color));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

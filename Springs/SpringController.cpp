@@ -74,6 +74,10 @@ void SpringController::Initialize()
 	// Initialize the shader to be used for the masses
 	RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Phong");
 
+	// Set the directional light direction and color
+	RESOURCEMANAGER.SetLightDirection(glm::vec3(-1.f, 0.5f, 1.f));
+	RESOURCEMANAGER.SetLightColor(glm::vec3(1.f, 1.f, 1.f));
+
 	// Setup the springs in the scene
 	InitSpring();
 	InitSpringWithDampening();
