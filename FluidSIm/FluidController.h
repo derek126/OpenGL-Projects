@@ -36,12 +36,16 @@ private:
 	};
 
 	// Computes the charge strength at each griod location
-	GLfloat ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const;
+	void ComputeVoxels();
 
 	// State
-	const GLuint Resolution = 32;
+	const GLuint Resolution = 48;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
+
+	// Buffers to refrain from allocating new memory every frame...
+	//std::vector<std::vector<std::vector<GLboolean>>> IsComputed;
+	//std::vector<glm::vec3> Neighbours;
 
 	// Functions to initialize various aspects of the scene
 	void InitSkybox();

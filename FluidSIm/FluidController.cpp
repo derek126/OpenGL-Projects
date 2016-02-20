@@ -14,12 +14,22 @@
 FluidController::FluidController()
 {
 	Grid.resize(Resolution);
-	for (unsigned i = 0; i < Resolution; i++)
+	for (GLuint i = 0; i < Resolution; i++)
 	{
 		Grid[i].resize(Resolution);
-		for (unsigned j = 0; j < Resolution; j++)
+		for (GLuint j = 0; j < Resolution; j++)
 		{
 			Grid[i][j].resize(Resolution);
+		}
+	}
+
+	IsComputed.resize(Resolution);
+	for (GLuint i = 0; i < Resolution; i++)
+	{
+		IsComputed[i].resize(Resolution);
+		for (GLuint j = 0; j < Resolution; j++)
+		{
+			IsComputed[i][j].resize(Resolution);
 		}
 	}
 }
@@ -43,6 +53,7 @@ FluidController::~FluidController()
 void FluidController::Initialize()
 {
 	GameController::Initialize();
+	GAMEMANAGER.SetTargetFrametime(30);
 
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(ScreenX, ScreenY);
@@ -56,7 +67,7 @@ void FluidController::Initialize()
 	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	// Set the directional light direction and color
-	RESOURCEMANAGER.SetLightDirection(glm::vec3(-1.f, -1.f, -1.f));
+	RESOURCEMANAGER.SetLightDirection(glm::vec3(1.f, 1.f, 1.f));
 	RESOURCEMANAGER.SetLightColor(glm::vec3(1.f, 1.f, 1.f));
 
 	// OpenGL configuration
@@ -90,18 +101,8 @@ void FluidController::Update(const GLdouble& dt)
 		Blobs[i].Position += Blobs[i].Velocity * static_cast<float>(dt);
 	}
 
-	// Compute field strength at each
-	for (GLuint i = 0; i < Resolution; i++)
-	{
-		for (GLuint j = 0; j < Resolution; j++)
-		{
-			for (GLuint k = 0; k < Resolution; k++)
-			{
-				Grid[i][j][k] = ComputeVoxel(i, j, k);
-			}
-		}
-	}
-
+	// Compute field strength
+	ComputeVoxels();
 	// Generate the mesh
 	Mesh.CreateMesh(Grid);
 }
@@ -136,7 +137,6 @@ void FluidController::Render()
 	glDisable(GL_CULL_FACE);
 	glBindVertexArray(Buffers["GrassVAO"]);
 	RESOURCEMANAGER.GetShader("Grass").Use();
-	//RESOURCEMANAGER.GetShader("Grass").SetFloat("Disp", 1.f, true);
 	RESOURCEMANAGER.GetTexture2D("Grass").Bind();
 	glDrawElementsInstanced(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0, 14400);
 	glBindVertexArray(0);
@@ -173,15 +173,79 @@ void FluidController::Render()
 	glBindVertexArray(0);
 }
 
-GLfloat FluidController::ComputeVoxel(const GLuint& gx, const GLuint& gy, const GLuint& gz) const
+void FluidController::ComputeVoxels()
 {
-	GLfloat val = 0;
-	for (unsigned i = 0; i < Blobs.size(); i++)
+	for (GLuint i = 0; i < Resolution; i++)
 	{
-		val += glm::pow(Blobs[i].Radius, 2) / (glm::pow(gx - Blobs[i].Position.x, 2) + glm::pow(gy - Blobs[i].Position.y, 2) + glm::pow(gz - Blobs[i].Position.z, 2));
+		for (GLuint j = 0; j < Resolution; j++)
+		{
+			for (GLuint k = 0; k < Resolution; k++)
+			{
+				GLfloat val = 0;
+				for (GLuint b = 0; b < Blobs.size(); b++)
+				{
+					val += glm::pow(Blobs[b].Radius, 2) / (glm::pow(i - Blobs[b].Position.x, 2) + glm::pow(j - Blobs[b].Position.y, 2) + glm::pow(k - Blobs[b].Position.z, 2));
+				}
+
+				Grid[i][j][k] = val;
+			}
+		}
 	}
 
-	return val;
+	/*for (GLuint i = 0; i < Resolution; i++)
+	{
+		for (GLuint j = 0; j < Resolution; j++)
+		{
+			std::fill(Grid[i][j].begin(), Grid[i][j].end(), 0.f);
+		}
+	}
+
+	auto TestAndAddNeighbours = [this](const GLfloat& Inf, const GLuint& gx, const GLuint& gy, const GLuint& gz)
+	{
+		if (Inf >= 0.5f)
+		{
+			if (!IsComputed[gx][gy][gz])
+			{
+				Grid[gx][gy][gz] += Inf;
+				IsComputed[gx][gy][gz] = GL_TRUE;
+			}
+
+			if (gx < Resolution - 1 && !IsComputed[gx + 1][gy][gz]) Neighbours.push_back(glm::vec3(gx + 1, gy, gz));
+			if (gx > 0 && !IsComputed[gx - 1][gy][gz]) Neighbours.push_back(glm::vec3(gx - 1, gy, gz));
+			if (gy < Resolution - 1 && !IsComputed[gx][gy + 1][gz]) Neighbours.push_back(glm::vec3(gx, gy + 1, gz));
+			if (gy > 0 && !IsComputed[gx][gy - 1][gz]) Neighbours.push_back(glm::vec3(gx, gy - 1, gz));
+			if (gz < Resolution - 1 && !IsComputed[gx][gy][gz + 1]) Neighbours.push_back(glm::vec3(gx, gy, gz + 1));
+			if (gz > 0 && !IsComputed[gx][gy][gz - 1]) Neighbours.push_back(glm::vec3(gx, gy, gz - 1));
+		}
+	};
+
+	for (GLuint b = 0; b < Blobs.size(); b++)
+	{
+		for (GLuint i = 0; i < Resolution; i++)
+		{
+			for (GLuint j = 0; j < Resolution; j++)
+			{
+				std::fill(IsComputed[i][j].begin(), IsComputed[i][j].end(), GL_FALSE);
+			}
+		}
+
+		GLuint gx = static_cast<GLuint>(glm::floor(Blobs[b].Position.x)),
+			gy = static_cast<GLuint>(glm::floor(Blobs[b].Position.y)),
+			gz = static_cast<GLuint>(glm::floor(Blobs[b].Position.z));
+
+		GLfloat Influence = 0;
+		Influence = glm::pow(Blobs[b].Radius, 2) / (glm::pow(gx - Blobs[b].Position.x, 2) + glm::pow(gy - Blobs[b].Position.y, 2) + glm::pow(gz - Blobs[b].Position.z, 2));
+
+		TestAndAddNeighbours(Influence, gx, gy, gz);
+		while (Neighbours.size() > 0)
+		{
+			glm::vec3 N = Neighbours.back();
+			Neighbours.pop_back();
+
+			Influence = glm::pow(Blobs[b].Radius, 2) / (glm::pow(N.x - Blobs[b].Position.x, 2) + glm::pow(N.y - Blobs[b].Position.y, 2) + glm::pow(N.z - Blobs[b].Position.z, 2));
+			TestAndAddNeighbours(Influence, static_cast<GLuint>(N.x), static_cast<GLuint>(N.y), static_cast<GLuint>(N.z));
+		}
+	}*/
 }
 
 void FluidController::InitSkybox()
@@ -297,20 +361,20 @@ void FluidController::InitGrass()
 {
 	GLfloat vertices[] = {
 		// Positions            // Texture Coords   // Normals
-		0.5f,  0.5f, 0.0f,		1.0f, 1.0f,		0.f, -1.f, 0.f,
-		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,		0.f, -1.f, 0.f,
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,		0.f, -1.f, 0.f,
-		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f,		0.f, -1.f, 0.f,
+		0.5f,  0.5f, 0.0f,		1.0f, 1.0f,		0.f, 1.f, 0.f,
+		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,		0.f, 1.f, 0.f,
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,		0.f, 1.f, 0.f,
+		-0.5f,  0.5f, 0.0f,		0.0f, 1.0f,		0.f, 1.f, 0.f,
 
-		0.5f,  0.5f, 0.5f,		1.0f, 1.0f,		0.f, -1.f, 0.f,
-		0.5f, -0.5f, 0.5f,		1.0f, 0.0f,		0.f, -1.f, 0.f,
-		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,		0.f, -1.f, 0.f,
-		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f,		0.f, -1.f, 0.f,
+		0.5f,  0.5f, 0.5f,		1.0f, 1.0f,		0.f, 1.f, 0.f,
+		0.5f, -0.5f, 0.5f,		1.0f, 0.0f,		0.f, 1.f, 0.f,
+		-0.5f, -0.5f, -0.5f,	0.0f, 0.0f,		0.f, 1.f, 0.f,
+		-0.5f,  0.5f, -0.5f,	0.0f, 1.0f,		0.f, 1.f, 0.f,
 
-		0.5f,  0.5f, -0.5f,		1.0f, 1.0f,		0.f, -1.f, 0.f,
-		0.5f, -0.5f, -0.5f,		1.0f, 0.0f,		0.f, -1.f, 0.f,
-		-0.5f, -0.5f, 0.5f,		0.0f, 0.0f,		0.f, -1.f, 0.f,
-		-0.5f,  0.5f, 0.5f,		0.0f, 1.0f,		0.f, -1.f, 0.f
+		0.5f,  0.5f, -0.5f,		1.0f, 1.0f,		0.f, 1.f, 0.f,
+		0.5f, -0.5f, -0.5f,		1.0f, 0.0f,		0.f, 1.f, 0.f,
+		-0.5f, -0.5f, 0.5f,		0.0f, 0.0f,		0.f, 1.f, 0.f,
+		-0.5f,  0.5f, 0.5f,		0.0f, 1.0f,		0.f, 1.f, 0.f
 	};
 
 	GLuint indices[] = {

@@ -24,7 +24,7 @@ void main()
 	vec3 LightDir = vec3(View * vec4(LightDirection, 0.f));
 
 	vec3 I = normalize(fs_in.FragPos - CameraPosition);
-    vec3 R = refract(I, normalize(fs_in.Normal), (1.f / 1.33f));
+    vec3 R = refract(I, normalize(-fs_in.Normal), (1.f / 1.33f));
 
 	float AmbientStrength = 0.1f;
     vec3 Ambient = AmbientStrength * LightColor;

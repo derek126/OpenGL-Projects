@@ -313,7 +313,7 @@ std::array<std::array<GLfloat, 3>, 12> MarchingCubes::EdgeDirection =
 	{ 0.0f, 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f },{ 0.0f,  0.0f, 1.0f }
 } };
 
-std::array<std::array<GLfloat, 3>, 8> MarchingCubes::VertexOffset =
+std::array<std::array<GLint, 3>, 8> MarchingCubes::VertexOffset =
 { {
 	{ 0, 0, 0 },{ 1, 0, 0 },{ 1, 1, 0 },{ 0, 1, 0 },
 	{ 0, 0, 1 },{ 1, 0, 1 },{ 1, 1, 1 },{ 0, 1, 1 }
@@ -340,6 +340,17 @@ void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat
 	Vertices.clear();
 	Normals.clear();
 
+	// Resize if needed
+	if (N.size() != Grid.size()) N.resize(Grid.size());
+	for (GLuint i = 0; i < Grid.size(); i++)
+	{
+		if (N[i].size() != Grid[i].size()) N[i].resize(Grid[i].size());
+		for (GLuint j = 0; j < Grid[i].size(); j++)
+		{
+			if (N[i][j].size() != Grid[i][j].size()) N[i][j].resize(Grid[i][j].size());
+		}
+	}
+
 	// For each voxel compute the vertices and indices
 	for (GLuint x = 0; x < Grid.size(); x++)
 	{
@@ -356,10 +367,8 @@ void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat
 	CalculateNormals(Grid);
 }
 
-//TODO: NEEDS OPTIMIZING
 void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
 {
-	std::array<std::array<std::array<glm::vec3, 32>, 32>, 32> N;
 	for (GLuint x = 2; x < Grid.size() - 2; x++)
 	{
 		for (GLuint y = 2; y < Grid[x].size() - 2; y++)
@@ -375,7 +384,7 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 		}
 	}
 
-	auto TriLERPNormal = [N, Grid](const glm::vec3& pos)
+	auto TriLERPNormal = [this, Grid](const glm::vec3& pos)
 	{
 		GLint x = static_cast<GLint>(pos.x);
 		GLint y = static_cast<GLint>(pos.y);
@@ -398,7 +407,7 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 	};
 
 	for (GLuint i = 0; i < Vertices.size(); i++)
-		Normals.push_back(TriLERPNormal(Vertices[i]));
+		Normals.push_back(-TriLERPNormal(Vertices[i]));
 }
 
 GLfloat MarchingCubes::GetOffset(const GLfloat& v1, const GLfloat& v2) const
@@ -407,14 +416,15 @@ GLfloat MarchingCubes::GetOffset(const GLfloat& v1, const GLfloat& v2) const
 	return ((v2 - v1) == 0.f) ? 0.5f : (Isolevel - v1) / (v2 - v1);
 }
 
+// VERY SLOW GET RID OF THIS
 void MarchingCubes::MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z)
 {
 	for (GLuint i = 0; i < 8; i++)
 	{
 		// Find the vertex positions components in world space
-		GLuint ix = x + static_cast<GLuint>(VertexOffset[i][0]);
-		GLuint iy = y + static_cast<GLuint>(VertexOffset[i][1]);
-		GLuint iz = z + static_cast<GLuint>(VertexOffset[i][2]);
+		GLuint ix = x + VertexOffset[i][0];
+		GLuint iy = y + VertexOffset[i][1];
+		GLuint iz = z + VertexOffset[i][2];
 
 		// If the corner of the cube us within the grid bounds, assign that value
 		if (ix < Grid.size() && iy < Grid[ix].size() && iz < Grid[ix][iy].size())
@@ -430,7 +440,7 @@ void MarchingCubes::MakeCube(const std::vector<std::vector<std::vector<GLfloat>>
 
 void MarchingCubes::MarchCube(const GLuint& ix, const GLuint& iy, const GLuint& iz)
 {
-	// Determine the "case" we are in (which vertices are inside and which are outside)
+	// Determine the case we are in (which vertices are inside and which are outside)
 	GLuint Index = 0;
 	for (GLuint i = 0; i < 8; i++) if (Cube[i] <= Isolevel) Index |= 1 << i;
 
