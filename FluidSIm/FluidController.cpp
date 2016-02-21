@@ -2,17 +2,20 @@
 #include "ResourceManager.h"
 
 #include <glm\gtc\random.hpp>
+#include <thread>
 
 #define ScreenX 1920
 #define ScreenY 1080
 
 #define MIN_VELOCITY -5.f
 #define MAX_VELOCITY 5.f
-#define MAIN_RADIUS 5.f
-#define SECONDARY_RADIUS 2.5f
+#define MAIN_RADIUS 4.f
+#define SECONDARY_RADIUS 1.5f
 
 FluidController::FluidController()
 {
+	Mesh = new MarchingCubes(Resolution);
+
 	Grid.resize(Resolution);
 	for (GLuint i = 0; i < Resolution; i++)
 	{
@@ -23,7 +26,7 @@ FluidController::FluidController()
 		}
 	}
 
-	IsComputed.resize(Resolution);
+	/*IsComputed.resize(Resolution);
 	for (GLuint i = 0; i < Resolution; i++)
 	{
 		IsComputed[i].resize(Resolution);
@@ -31,11 +34,13 @@ FluidController::FluidController()
 		{
 			IsComputed[i][j].resize(Resolution);
 		}
-	}
+	}*/
 }
 
 FluidController::~FluidController()
 {
+	if (Mesh) delete Mesh;
+
 	glDeleteVertexArrays(1, &Buffers["VAO"]);
 	glDeleteVertexArrays(1, &Buffers["SkyboxVAO"]);
 
@@ -98,13 +103,13 @@ void FluidController::Update(const GLdouble& dt)
 		{
 			Blobs[i].Velocity = -Blobs[i].Velocity;
 		}
-		Blobs[i].Position += Blobs[i].Velocity * static_cast<float>(dt);
+		Blobs[i].Position += Blobs[i].Velocity * static_cast<GLfloat>(dt);
 	}
 
 	// Compute field strength
 	ComputeVoxels();
 	// Generate the mesh
-	Mesh.CreateMesh(Grid);
+	Mesh->CreateMesh(Grid);
 }
 
 void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
@@ -154,28 +159,29 @@ void FluidController::Render()
 	glBindVertexArray(Buffers["VAO"]);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Buffers["EBO"]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, Mesh.GetIndices().size() * sizeof(GLuint), Mesh.GetIndices().data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, Mesh->GetIndices().size() * sizeof(GLuint), Mesh->GetIndices().data(), GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Vertices"]);
-	glBufferData(GL_ARRAY_BUFFER, Mesh.GetVertices().size() * 3 * sizeof(GLfloat), Mesh.GetVertices().data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Mesh->GetVertices().size() * 3 * sizeof(GLfloat), Mesh->GetVertices().data(), GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Normals"]);
-	glBufferData(GL_ARRAY_BUFFER, Mesh.GetNormals().size() * 3 * sizeof(GLfloat), Mesh.GetNormals().data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, Mesh->GetNormals().size() * 3 * sizeof(GLfloat), Mesh->GetNormals().data(), GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
 	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("CameraPosition", Camera->GetPosition(), true);
-	glDrawElements(GL_TRIANGLES, Mesh.GetIndices().size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
+#include <iostream>
 void FluidController::ComputeVoxels()
 {
-	for (GLuint i = 0; i < Resolution; i++)
+	/*for (GLuint i = 0; i < Resolution; i++)
 	{
 		for (GLuint j = 0; j < Resolution; j++)
 		{
@@ -190,6 +196,49 @@ void FluidController::ComputeVoxels()
 				Grid[i][j][k] = val;
 			}
 		}
+	}*/
+
+	static auto Compute = [this](const GLuint& B, const GLuint& E) 
+	{
+		for (GLuint i = B; i < E; i++)
+		{
+			for (GLuint j = 0; j < Resolution; j++)
+			{
+				for (GLuint k = 0; k < Resolution; k++)
+				{
+					GLfloat val = 0;
+					for (GLuint b = 0; b < Blobs.size(); b++)
+					{
+						val += Blobs[b].RadiusSquared / (glm::pow(i - Blobs[b].Position.x, 2) + glm::pow(j - Blobs[b].Position.y, 2) + glm::pow(k - Blobs[b].Position.z, 2));
+					}
+
+					Grid[i][j][k] = val;
+				}
+			}
+		}
+	};
+
+	/*GLuint R = Resolution / 4;
+	std::vector<std::thread> Threads;
+	Threads.push_back(std::thread(Compute, 0, R));
+	Threads.push_back(std::thread(Compute, R, R * 2));
+	Threads.push_back(std::thread(Compute, R * 2, R * 3));
+	Threads.push_back(std::thread(Compute, R * 3, R * 4));*/
+
+	GLuint R = Resolution / 8;
+	std::vector<std::thread> Threads;
+	Threads.push_back(std::thread(Compute, 0, R));
+	Threads.push_back(std::thread(Compute, R, R * 2));
+	Threads.push_back(std::thread(Compute, R * 2, R * 3));
+	Threads.push_back(std::thread(Compute, R * 3, R * 4));
+	Threads.push_back(std::thread(Compute, R * 4, R * 5));
+	Threads.push_back(std::thread(Compute, R * 5, R * 6));
+	Threads.push_back(std::thread(Compute, R * 6, R * 7));
+	Threads.push_back(std::thread(Compute, R * 7, R * 8));
+
+	for (std::thread& Thread : Threads)
+	{
+		Thread.join();
 	}
 
 	/*for (GLuint i = 0; i < Resolution; i++)
@@ -355,6 +404,11 @@ void FluidController::InitBlobs()
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
+
+	// Set blob scale
+	glm::mat4 Model;
+	Model = glm::scale(Model, glm::vec3(0.75f, 0.75f, 0.75f));
+	RESOURCEMANAGER.GetShader("Blobs").SetMatrix4("Model", Model, true);
 }
 
 void FluidController::InitGrass()

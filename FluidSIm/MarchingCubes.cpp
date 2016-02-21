@@ -319,9 +319,19 @@ std::array<std::array<GLint, 3>, 8> MarchingCubes::VertexOffset =
 	{ 0, 0, 1 },{ 1, 0, 1 },{ 1, 1, 1 },{ 0, 1, 1 }
 } };
 
-MarchingCubes::MarchingCubes() :
-	Isolevel(1.f)
+MarchingCubes::MarchingCubes(const GLuint& Res) :
+	Isolevel(1.f),
+	Resolution(Res)
 {
+	N.resize(Resolution);
+	for (GLuint i = 0; i < Resolution; i++)
+	{
+		N[i].resize(Resolution);
+		for (GLuint j = 0; j < Resolution; j++)
+		{
+			N[i][j].resize(Resolution);
+		}
+	}
 }
 
 MarchingCubes::~MarchingCubes()
@@ -340,23 +350,12 @@ void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat
 	Vertices.clear();
 	Normals.clear();
 
-	// Resize if needed
-	if (N.size() != Grid.size()) N.resize(Grid.size());
-	for (GLuint i = 0; i < Grid.size(); i++)
-	{
-		if (N[i].size() != Grid[i].size()) N[i].resize(Grid[i].size());
-		for (GLuint j = 0; j < Grid[i].size(); j++)
-		{
-			if (N[i][j].size() != Grid[i][j].size()) N[i][j].resize(Grid[i][j].size());
-		}
-	}
-
 	// For each voxel compute the vertices and indices
-	for (GLuint x = 0; x < Grid.size(); x++)
+	for (GLuint x = 0; x < Resolution; x++)
 	{
-		for (GLuint y = 0; y < Grid[x].size(); y++)
+		for (GLuint y = 0; y < Resolution; y++)
 		{
-			for (GLuint z = 0; z < Grid[x][y].size(); z++)
+			for (GLuint z = 0; z < Resolution; z++)
 			{
 				MakeCube(Grid, x, y, z);
 				MarchCube(x, y, z);
@@ -369,11 +368,11 @@ void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat
 
 void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
 {
-	for (GLuint x = 2; x < Grid.size() - 2; x++)
+	for (GLuint x = 2; x < Resolution - 2; x++)
 	{
-		for (GLuint y = 2; y < Grid[x].size() - 2; y++)
+		for (GLuint y = 2; y < Resolution - 2; y++)
 		{
-			for (GLuint z = 2; z < Grid[x][y].size() - 2; z++)
+			for (GLuint z = 2; z < Resolution - 2; z++)
 			{
 				GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
 				GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
@@ -384,7 +383,7 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 		}
 	}
 
-	auto TriLERPNormal = [this, Grid](const glm::vec3& pos)
+	static auto TriLERPNormal = [this, Grid](const glm::vec3& pos)
 	{
 		GLint x = static_cast<GLint>(pos.x);
 		GLint y = static_cast<GLint>(pos.y);
@@ -416,7 +415,6 @@ GLfloat MarchingCubes::GetOffset(const GLfloat& v1, const GLfloat& v2) const
 	return ((v2 - v1) == 0.f) ? 0.5f : (Isolevel - v1) / (v2 - v1);
 }
 
-// VERY SLOW GET RID OF THIS
 void MarchingCubes::MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z)
 {
 	for (GLuint i = 0; i < 8; i++)
@@ -427,7 +425,7 @@ void MarchingCubes::MakeCube(const std::vector<std::vector<std::vector<GLfloat>>
 		GLuint iz = z + VertexOffset[i][2];
 
 		// If the corner of the cube us within the grid bounds, assign that value
-		if (ix < Grid.size() && iy < Grid[ix].size() && iz < Grid[ix][iy].size())
+		if (ix < Resolution && iy < Resolution && iz < Resolution)
 		{
 			Cube[i] = Grid[ix][iy][iz];
 		}

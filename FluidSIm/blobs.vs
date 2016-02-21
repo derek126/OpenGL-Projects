@@ -21,8 +21,8 @@ uniform mat4 Model;
 
 void main()
 {
-	vs_out.Normal = mat3(transpose(inverse(View))) * Normal;
-	vs_out.FragPos = vec3(View * vec4(Position, 1.0f));
+	vs_out.Normal = mat3(transpose(inverse(View * Model))) * Normal;
+	vs_out.FragPos = vec3(View * Model * vec4(Position, 1.0f));
 
-    gl_Position = Projection * View * vec4(Position, 1.0);
+    gl_Position = Projection * View * Model * vec4(Position, 1.0);
 }

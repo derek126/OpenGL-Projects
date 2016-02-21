@@ -10,7 +10,7 @@ class MarchingCubes
 {
 public:
 
-	MarchingCubes();
+	MarchingCubes(const GLuint& Res);
 	~MarchingCubes();
 
 	void SetIsolevel(const GLfloat& Iso);
@@ -43,5 +43,6 @@ private:
 	std::vector<glm::vec3> Vertices, Normals;
 
 	GLfloat Isolevel;
+	GLuint Resolution;
 };
 

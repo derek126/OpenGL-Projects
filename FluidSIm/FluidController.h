@@ -29,9 +29,11 @@ private:
 	struct Blob
 	{
 		Blob(const glm::vec3& Velocity, const glm::vec3& GridPos, const GLfloat Radius) : Velocity(Velocity), Radius(Radius), Position(GridPos)
-		{};
+		{
+			RadiusSquared = glm::pow(Radius, 2);
+		};
 
-		GLfloat Radius;
+		GLfloat Radius, RadiusSquared;
 		glm::vec3 Position, Velocity;
 	};
 
@@ -52,7 +54,7 @@ private:
 	void InitBlobs();
 	void InitGrass();
 
-	MarchingCubes Mesh; // Computes the mesh, retrieve vertices, indices and normals from here
+	MarchingCubes* Mesh; // Computes the mesh, retrieve vertices, indices and normals from here
 	std::map<std::string, GLuint> Buffers; // Buffer storage
 };
 
