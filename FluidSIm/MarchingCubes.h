@@ -14,7 +14,9 @@ public:
 	~MarchingCubes();
 
 	void SetIsolevel(const GLfloat& Iso);
-	void CreateMesh(const std::vector<std::vector<std::vector<GLfloat>>>& Grid);
+	void ClearMesh();
+	void CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid);
+	GLint MarchCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z);
 
 	std::vector<GLuint> GetIndices() const;
 	std::vector<glm::vec3> GetVertices() const;
@@ -24,8 +26,6 @@ private:
 
 	GLfloat GetOffset(const GLfloat& v1, const GLfloat& v2) const;
 	void MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z);
-	void MarchCube(const GLuint& x, const GLuint& y, const GLuint& z);
-	void CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid);
 
 	// Tables
 	static std::array<std::array<GLint, 3>, 8> VertexOffset;

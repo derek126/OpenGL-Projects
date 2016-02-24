@@ -343,29 +343,6 @@ void MarchingCubes::SetIsolevel(const GLfloat& Iso)
 	Isolevel = Iso;
 }
 
-void MarchingCubes::CreateMesh(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
-{
-	// Clear out previous mesh
-	Indices.clear();
-	Vertices.clear();
-	Normals.clear();
-
-	// For each voxel compute the vertices and indices
-	for (GLuint x = 0; x < Resolution; x++)
-	{
-		for (GLuint y = 0; y < Resolution; y++)
-		{
-			for (GLuint z = 0; z < Resolution; z++)
-			{
-				MakeCube(Grid, x, y, z);
-				MarchCube(x, y, z);
-			}
-		}
-	}
-
-	CalculateNormals(Grid);
-}
-
 void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
 {
 	for (GLuint x = 2; x < Resolution - 2; x++)
@@ -374,11 +351,14 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 		{
 			for (GLuint z = 2; z < Resolution - 2; z++)
 			{
-				GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
-				GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
-				GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
+				if (Grid[x][y][z] != -1.f)
+				{
+					GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
+					GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
+					GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
 
-				N[x][y][z] = glm::normalize(glm::vec3(dx, dy, dz));
+					N[x][y][z] = glm::normalize(glm::vec3(dx, dy, dz));
+				}
 			}
 		}
 	}
@@ -436,14 +416,16 @@ void MarchingCubes::MakeCube(const std::vector<std::vector<std::vector<GLfloat>>
 	}
 }
 
-void MarchingCubes::MarchCube(const GLuint& ix, const GLuint& iy, const GLuint& iz)
+GLint MarchingCubes::MarchCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& ix, const GLuint& iy, const GLuint& iz)
 {
+	MakeCube(Grid, ix, iy, iz);
+
 	// Determine the case we are in (which vertices are inside and which are outside)
 	GLuint Index = 0;
 	for (GLuint i = 0; i < 8; i++) if (Cube[i] <= Isolevel) Index |= 1 << i;
 
 	// Either fully inside or outside of the surface
-	if (EdgeTable[Index] == 0) return;
+	if (EdgeTable[Index] == 0) return EdgeTable[Index];
 
 	for (GLuint i = 0; i < 12; i++)
 	{
@@ -477,11 +459,20 @@ void MarchingCubes::MarchCube(const GLuint& ix, const GLuint& iy, const GLuint& 
 		Indices.push_back(idx + 2);
 		Vertices.push_back(NewVerts[Vert]);
 
-		//glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
-		//Normals.push_back(Normal);
-		//Normals.push_back(Normal);
-		//Normals.push_back(Normal);
+		glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
+		Normals.push_back(Normal);
+		Normals.push_back(Normal);
+		Normals.push_back(Normal);
 	}
+
+	return EdgeTable[Index];
+}
+
+void MarchingCubes::ClearMesh()
+{
+	Indices.clear();
+	Vertices.clear();
+	Normals.clear();
 }
 
 std::vector<GLuint> MarchingCubes::GetIndices() const

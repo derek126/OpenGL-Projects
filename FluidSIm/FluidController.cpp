@@ -26,7 +26,7 @@ FluidController::FluidController()
 		}
 	}
 
-	/*IsComputed.resize(Resolution);
+	IsComputed.resize(Resolution);
 	for (GLuint i = 0; i < Resolution; i++)
 	{
 		IsComputed[i].resize(Resolution);
@@ -34,7 +34,7 @@ FluidController::FluidController()
 		{
 			IsComputed[i][j].resize(Resolution);
 		}
-	}*/
+	}
 }
 
 FluidController::~FluidController()
@@ -106,10 +106,9 @@ void FluidController::Update(const GLdouble& dt)
 		Blobs[i].Position += Blobs[i].Velocity * static_cast<GLfloat>(dt);
 	}
 
-	// Compute field strength
+	Mesh->ClearMesh();
 	ComputeVoxels();
-	// Generate the mesh
-	Mesh->CreateMesh(Grid);
+	//Mesh->CalculateNormals(Grid);
 }
 
 void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
@@ -147,14 +146,6 @@ void FluidController::Render()
 	glBindVertexArray(0);
 	glEnable(GL_CULL_FACE);
 
-	//Render skybox
-	glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
-	glBindVertexArray(Buffers["SkyboxVAO"]);
-	RESOURCEMANAGER.GetShader("Skybox").Use();
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-	glDepthFunc(GL_LESS); // Set depth function back to default
-
 	// Render blobs
 	glBindVertexArray(Buffers["VAO"]);
 
@@ -176,9 +167,16 @@ void FluidController::Render()
 	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("CameraPosition", Camera->GetPosition(), true);
 	glDrawElements(GL_TRIANGLES, Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+
+	//Render skybox
+	glDepthFunc(GL_LEQUAL);  // Change depth function so depth test passes when values are equal to depth buffer's content
+	glBindVertexArray(Buffers["SkyboxVAO"]);
+	RESOURCEMANAGER.GetShader("Skybox").Use();
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+	glDepthFunc(GL_LESS); // Set depth function back to default
 }
 
-#include <iostream>
 void FluidController::ComputeVoxels()
 {
 	/*for (GLuint i = 0; i < Resolution; i++)
@@ -198,7 +196,7 @@ void FluidController::ComputeVoxels()
 		}
 	}*/
 
-	static auto Compute = [this](const GLuint& B, const GLuint& E) 
+	/*static auto Compute = [this](const GLuint& B, const GLuint& E) 
 	{
 		for (GLuint i = B; i < E; i++)
 		{
@@ -216,7 +214,7 @@ void FluidController::ComputeVoxels()
 				}
 			}
 		}
-	};
+	};*/
 
 	/*GLuint R = Resolution / 4;
 	std::vector<std::thread> Threads;
@@ -225,7 +223,7 @@ void FluidController::ComputeVoxels()
 	Threads.push_back(std::thread(Compute, R * 2, R * 3));
 	Threads.push_back(std::thread(Compute, R * 3, R * 4));*/
 
-	GLuint R = Resolution / 8;
+	/*GLuint R = Resolution / 8;
 	std::vector<std::thread> Threads;
 	Threads.push_back(std::thread(Compute, 0, R));
 	Threads.push_back(std::thread(Compute, R, R * 2));
@@ -239,62 +237,103 @@ void FluidController::ComputeVoxels()
 	for (std::thread& Thread : Threads)
 	{
 		Thread.join();
-	}
+	}*/
 
-	/*for (GLuint i = 0; i < Resolution; i++)
+	for (GLuint i = 0; i < Resolution; i++)
 	{
 		for (GLuint j = 0; j < Resolution; j++)
 		{
-			std::fill(Grid[i][j].begin(), Grid[i][j].end(), 0.f);
+			std::fill(Grid[i][j].begin(), Grid[i][j].end(), -1.f);
+			std::fill(IsComputed[i][j].begin(), IsComputed[i][j].end(), GL_FALSE);
 		}
 	}
 
-	auto TestAndAddNeighbours = [this](const GLfloat& Inf, const GLuint& gx, const GLuint& gy, const GLuint& gz)
+	static auto AddNeighbours = [this](const GLuint& gx, const GLuint& gy, const GLuint& gz)
 	{
-		if (Inf >= 0.5f)
+		for (GLuint x = gx - 1; x <= gx + 1; x++)
 		{
-			if (!IsComputed[gx][gy][gz])
+			for (GLuint y = gy - 1; y <= gy + 1; y++)
 			{
-				Grid[gx][gy][gz] += Inf;
-				IsComputed[gx][gy][gz] = GL_TRUE;
+				for (GLuint z = gz - 1; z <= gz + 1; z++)
+				{
+					if (!IsComputed[x][y][z] && x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
+					{
+						Neighbours.push_back(glm::vec3(x, y, z));
+					}
+				}
 			}
-
-			if (gx < Resolution - 1 && !IsComputed[gx + 1][gy][gz]) Neighbours.push_back(glm::vec3(gx + 1, gy, gz));
-			if (gx > 0 && !IsComputed[gx - 1][gy][gz]) Neighbours.push_back(glm::vec3(gx - 1, gy, gz));
-			if (gy < Resolution - 1 && !IsComputed[gx][gy + 1][gz]) Neighbours.push_back(glm::vec3(gx, gy + 1, gz));
-			if (gy > 0 && !IsComputed[gx][gy - 1][gz]) Neighbours.push_back(glm::vec3(gx, gy - 1, gz));
-			if (gz < Resolution - 1 && !IsComputed[gx][gy][gz + 1]) Neighbours.push_back(glm::vec3(gx, gy, gz + 1));
-			if (gz > 0 && !IsComputed[gx][gy][gz - 1]) Neighbours.push_back(glm::vec3(gx, gy, gz - 1));
 		}
 	};
 
-	for (GLuint b = 0; b < Blobs.size(); b++)
+	static auto ComputeNeighbours = [this](const GLuint& gx, const GLuint& gy, const GLuint& gz)
 	{
-		for (GLuint i = 0; i < Resolution; i++)
+		for (GLuint x = gx; x <= gx + 1; x++)
 		{
-			for (GLuint j = 0; j < Resolution; j++)
+			for (GLuint y = gy; y <= gy + 1; y++)
 			{
-				std::fill(IsComputed[i][j].begin(), IsComputed[i][j].end(), GL_FALSE);
+				for (GLuint z = gz; z <= gz + 1; z++)
+				{
+					if (x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
+					{
+						if (Grid[x][y][z] == -1.f) Grid[x][y][z] = ComputeAtGrid(x, y, z);
+					}
+				}
 			}
 		}
+	};
 
-		GLuint gx = static_cast<GLuint>(glm::floor(Blobs[b].Position.x)),
-			gy = static_cast<GLuint>(glm::floor(Blobs[b].Position.y)),
-			gz = static_cast<GLuint>(glm::floor(Blobs[b].Position.z));
+	GLuint gx, gy, gz;
+	glm::vec3 N;
+	GLint Case;
+	for (GLuint b = 0; b < Blobs.size(); b++)
+	{
+		gx = static_cast<GLuint>(glm::floor(Blobs[b].Position.x)),
+		gy = static_cast<GLuint>(glm::floor(Blobs[b].Position.y)),
+		gz = static_cast<GLuint>(glm::floor(Blobs[b].Position.z));
 
-		GLfloat Influence = 0;
-		Influence = glm::pow(Blobs[b].Radius, 2) / (glm::pow(gx - Blobs[b].Position.x, 2) + glm::pow(gy - Blobs[b].Position.y, 2) + glm::pow(gz - Blobs[b].Position.z, 2));
+		ComputeNeighbours(gx, gy, gz);
+		Case = Mesh->MarchCube(Grid, gx, gy, gz);
+		IsComputed[gx][gy][gz] = GL_TRUE;
+		while (Case == 0)
+		{
+			if (++gy < Resolution)
+			{
+				Case = Mesh->MarchCube(Grid, gx, gy, gz);
+				IsComputed[gx][gy][gz] = GL_TRUE;
+				continue;
+			}
+			break;
+		}
 
-		TestAndAddNeighbours(Influence, gx, gy, gz);
+		if (Case != 0) AddNeighbours(gx, gy, gz);
+
 		while (Neighbours.size() > 0)
 		{
-			glm::vec3 N = Neighbours.back();
+			N = Neighbours.back();
 			Neighbours.pop_back();
 
-			Influence = glm::pow(Blobs[b].Radius, 2) / (glm::pow(N.x - Blobs[b].Position.x, 2) + glm::pow(N.y - Blobs[b].Position.y, 2) + glm::pow(N.z - Blobs[b].Position.z, 2));
-			TestAndAddNeighbours(Influence, static_cast<GLuint>(N.x), static_cast<GLuint>(N.y), static_cast<GLuint>(N.z));
+			gx = static_cast<GLuint>(N.x),
+			gy = static_cast<GLuint>(N.y),
+			gz = static_cast<GLuint>(N.z);
+
+			ComputeNeighbours(gx, gy, gz);
+			Case = Mesh->MarchCube(Grid, gx, gy, gz);
+			IsComputed[gx][gy][gz] = GL_TRUE;
+
+			if (Case != 0) AddNeighbours(gx, gy, gz);
 		}
-	}*/
+	}
+}
+
+GLfloat FluidController::ComputeAtGrid(const GLuint& ix, const GLuint& iy, const GLuint& iz)
+{
+	GLfloat Influence = 0;
+	for (GLuint b = 0; b < Blobs.size(); b++)
+	{
+		Influence += Blobs[b].RadiusSquared / (glm::pow(ix - Blobs[b].Position.x, 2) + glm::pow(iy - Blobs[b].Position.y, 2) + glm::pow(iz - Blobs[b].Position.z, 2));
+	}
+
+	return Influence;
 }
 
 void FluidController::InitSkybox()
