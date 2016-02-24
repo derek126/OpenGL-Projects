@@ -461,10 +461,10 @@ GLint MarchingCubes::MarchCube(const std::vector<std::vector<std::vector<GLfloat
 		Indices.push_back(idx + 2);
 		Vertices.push_back(NewVerts[Vert]);
 
-		glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
-		Normals.push_back(Normal);
-		Normals.push_back(Normal);
-		Normals.push_back(Normal);
+		//glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
+		//Normals.push_back(Normal);
+		//Normals.push_back(Normal);
+		//Normals.push_back(Normal);
 	}
 
 	return EdgeTable[Index];

@@ -113,7 +113,7 @@ void FluidController::Update(const GLdouble& dt)
 
 	MeshBuilder->ClearMesh(); // Clear previous mesh
 	ComputeVoxels(); // Create new mesh
-	//Mesh->CalculateNormals(Grid); // Create smoothed normals
+	MeshBuilder->CalculateNormals(Grid); // Create smoothed normals
 }
 
 void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
@@ -458,9 +458,10 @@ void FluidController::InitBlobs()
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
 
-	// Set blob scale
+	// Set blob transform
 	glm::mat4 Model;
-	Model = glm::scale(Model, glm::vec3(0.75f, 0.75f, 0.75f));
+	Model = glm::translate(Model, glm::vec3(0.f, -20.f, 0.f));
+	Model = glm::scale(Model, glm::vec3(0.5f, 0.5f, 0.5f));
 	RESOURCEMANAGER.GetShader("Blobs").SetMatrix4("Model", Model, true);
 }
 
