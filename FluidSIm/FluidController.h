@@ -37,9 +37,11 @@ private:
 		glm::vec3 Position, Velocity;
 	};
 
-	// Computes the charge strength at each griod location
+	// Functions for computing the mesh
 	void ComputeVoxels();
 	GLfloat ComputeAtGrid(const GLuint& ix, const GLuint& iy, const GLuint& iz);
+	void AddNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz);
+	void ComputeNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz);
 
 	// State
 	const GLuint Resolution = 48;
@@ -55,7 +57,7 @@ private:
 	void InitBlobs();
 	void InitGrass();
 
-	MarchingCubes* Mesh; // Computes the mesh, retrieve vertices, indices and normals from here
+	MarchingCubes* MeshBuilder; // Computes the mesh, retrieve vertices, indices and normals from here
 	std::map<std::string, GLuint> Buffers; // Buffer storage
 };
 

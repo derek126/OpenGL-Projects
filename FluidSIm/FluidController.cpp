@@ -14,8 +14,10 @@
 
 FluidController::FluidController()
 {
-	Mesh = new MarchingCubes(Resolution);
+	// Create the mesh builder
+	MeshBuilder = new MarchingCubes(Resolution);
 
+	// Resize the voxel array
 	Grid.resize(Resolution);
 	for (GLuint i = 0; i < Resolution; i++)
 	{
@@ -26,6 +28,7 @@ FluidController::FluidController()
 		}
 	}
 
+	// Resize the scratch buffer
 	IsComputed.resize(Resolution);
 	for (GLuint i = 0; i < Resolution; i++)
 	{
@@ -39,7 +42,8 @@ FluidController::FluidController()
 
 FluidController::~FluidController()
 {
-	if (Mesh) delete Mesh;
+	// Free all resources
+	if (MeshBuilder) delete MeshBuilder;
 
 	glDeleteVertexArrays(1, &Buffers["VAO"]);
 	glDeleteVertexArrays(1, &Buffers["SkyboxVAO"]);
@@ -81,6 +85,7 @@ void FluidController::Initialize()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
 
+	// Initialize the scene elements
 	InitBlobs();
 	InitSkybox();
 	InitGrass();
@@ -106,9 +111,9 @@ void FluidController::Update(const GLdouble& dt)
 		Blobs[i].Position += Blobs[i].Velocity * static_cast<GLfloat>(dt);
 	}
 
-	Mesh->ClearMesh();
-	ComputeVoxels();
-	//Mesh->CalculateNormals(Grid);
+	MeshBuilder->ClearMesh(); // Clear previous mesh
+	ComputeVoxels(); // Create new mesh
+	//Mesh->CalculateNormals(Grid); // Create smoothed normals
 }
 
 void FluidController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
@@ -150,22 +155,22 @@ void FluidController::Render()
 	glBindVertexArray(Buffers["VAO"]);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Buffers["EBO"]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, Mesh->GetIndices().size() * sizeof(GLuint), Mesh->GetIndices().data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, MeshBuilder->GetIndices().size() * sizeof(GLuint), MeshBuilder->GetIndices().data(), GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Vertices"]);
-	glBufferData(GL_ARRAY_BUFFER, Mesh->GetVertices().size() * 3 * sizeof(GLfloat), Mesh->GetVertices().data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, MeshBuilder->GetVertices().size() * 3 * sizeof(GLfloat), MeshBuilder->GetVertices().data(), GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Normals"]);
-	glBufferData(GL_ARRAY_BUFFER, Mesh->GetNormals().size() * 3 * sizeof(GLfloat), Mesh->GetNormals().data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, MeshBuilder->GetNormals().size() * 3 * sizeof(GLfloat), MeshBuilder->GetNormals().data(), GL_DYNAMIC_DRAW);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
 	RESOURCEMANAGER.GetShader("Blobs").SetVector3f("CameraPosition", Camera->GetPosition(), true);
-	glDrawElements(GL_TRIANGLES, Mesh->GetIndices().size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, MeshBuilder->GetIndices().size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
 	//Render skybox
@@ -176,6 +181,42 @@ void FluidController::Render()
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // Set depth function back to default
 }
+
+void FluidController::AddNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz)
+{
+	// Adds the neighbours of the given grid point
+	for (GLuint x = gx - 1; x <= gx + 1; x++)
+	{
+		for (GLuint y = gy - 1; y <= gy + 1; y++)
+		{
+			for (GLuint z = gz - 1; z <= gz + 1; z++)
+			{
+				if (!IsComputed[x][y][z] && x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
+				{
+					Neighbours.push_back(glm::vec3(x, y, z));
+				}
+			}
+		}
+	}
+};
+
+void FluidController::ComputeNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz)
+{
+	// Computes the relevant neighbours for each cube vertex
+	for (GLuint x = gx; x <= gx + 1; x++)
+	{
+		for (GLuint y = gy; y <= gy + 1; y++)
+		{
+			for (GLuint z = gz; z <= gz + 1; z++)
+			{
+				if (x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
+				{
+					if (Grid[x][y][z] == -1.f) Grid[x][y][z] = ComputeAtGrid(x, y, z);
+				}
+			}
+		}
+	}
+};
 
 void FluidController::ComputeVoxels()
 {
@@ -239,74 +280,46 @@ void FluidController::ComputeVoxels()
 		Thread.join();
 	}*/
 
+	// Reset the buffers
 	for (GLuint i = 0; i < Resolution; i++)
 	{
 		for (GLuint j = 0; j < Resolution; j++)
 		{
-			std::fill(Grid[i][j].begin(), Grid[i][j].end(), -1.f);
+			std::fill(Grid[i][j].begin(), Grid[i][j].end(), -1.f); // -1 denotes not calculated
 			std::fill(IsComputed[i][j].begin(), IsComputed[i][j].end(), GL_FALSE);
 		}
 	}
-
-	static auto AddNeighbours = [this](const GLuint& gx, const GLuint& gy, const GLuint& gz)
-	{
-		for (GLuint x = gx - 1; x <= gx + 1; x++)
-		{
-			for (GLuint y = gy - 1; y <= gy + 1; y++)
-			{
-				for (GLuint z = gz - 1; z <= gz + 1; z++)
-				{
-					if (!IsComputed[x][y][z] && x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
-					{
-						Neighbours.push_back(glm::vec3(x, y, z));
-					}
-				}
-			}
-		}
-	};
-
-	static auto ComputeNeighbours = [this](const GLuint& gx, const GLuint& gy, const GLuint& gz)
-	{
-		for (GLuint x = gx; x <= gx + 1; x++)
-		{
-			for (GLuint y = gy; y <= gy + 1; y++)
-			{
-				for (GLuint z = gz; z <= gz + 1; z++)
-				{
-					if (x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
-					{
-						if (Grid[x][y][z] == -1.f) Grid[x][y][z] = ComputeAtGrid(x, y, z);
-					}
-				}
-			}
-		}
-	};
 
 	GLuint gx, gy, gz;
 	glm::vec3 N;
 	GLint Case;
 	for (GLuint b = 0; b < Blobs.size(); b++)
 	{
+		// Center point of blob
 		gx = static_cast<GLuint>(glm::floor(Blobs[b].Position.x)),
 		gy = static_cast<GLuint>(glm::floor(Blobs[b].Position.y)),
 		gz = static_cast<GLuint>(glm::floor(Blobs[b].Position.z));
 
 		ComputeNeighbours(gx, gy, gz);
-		Case = Mesh->MarchCube(Grid, gx, gy, gz);
+		Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
 		IsComputed[gx][gy][gz] = GL_TRUE;
+
+		// If this blobs center point is totally inside the mesh, inch upward until we find a face
 		while (Case == 0)
 		{
 			if (++gy < Resolution)
 			{
-				Case = Mesh->MarchCube(Grid, gx, gy, gz);
+				Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
 				IsComputed[gx][gy][gz] = GL_TRUE;
 				continue;
 			}
 			break;
 		}
 
+		// If we found a face, add the neighbouring points
 		if (Case != 0) AddNeighbours(gx, gy, gz);
 
+		// Repeat for each neighbouring point until the mesh is built
 		while (Neighbours.size() > 0)
 		{
 			N = Neighbours.back();
@@ -317,7 +330,7 @@ void FluidController::ComputeVoxels()
 			gz = static_cast<GLuint>(N.z);
 
 			ComputeNeighbours(gx, gy, gz);
-			Case = Mesh->MarchCube(Grid, gx, gy, gz);
+			Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
 			IsComputed[gx][gy][gz] = GL_TRUE;
 
 			if (Case != 0) AddNeighbours(gx, gy, gz);
@@ -328,6 +341,7 @@ void FluidController::ComputeVoxels()
 GLfloat FluidController::ComputeAtGrid(const GLuint& ix, const GLuint& iy, const GLuint& iz)
 {
 	GLfloat Influence = 0;
+	// Compute the field strength at this point for all blobs
 	for (GLuint b = 0; b < Blobs.size(); b++)
 	{
 		Influence += Blobs[b].RadiusSquared / (glm::pow(ix - Blobs[b].Position.x, 2) + glm::pow(iy - Blobs[b].Position.y, 2) + glm::pow(iz - Blobs[b].Position.z, 2));

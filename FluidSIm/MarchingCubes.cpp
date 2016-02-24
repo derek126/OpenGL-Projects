@@ -323,6 +323,7 @@ MarchingCubes::MarchingCubes(const GLuint& Res) :
 	Isolevel(1.f),
 	Resolution(Res)
 {
+	// Create the scratch buffer for the normals
 	N.resize(Resolution);
 	for (GLuint i = 0; i < Resolution; i++)
 	{
@@ -343,6 +344,7 @@ void MarchingCubes::SetIsolevel(const GLfloat& Iso)
 	Isolevel = Iso;
 }
 
+// TODO : This needs some attention...
 void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
 {
 	for (GLuint x = 2; x < Resolution - 2; x++)
