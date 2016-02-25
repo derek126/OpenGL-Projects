@@ -367,9 +367,23 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 
 	static auto TriLERPNormal = [this, Grid](const glm::vec3& pos)
 	{
-		GLint x = static_cast<GLint>(pos.x);
-		GLint y = static_cast<GLint>(pos.y);
-		GLint z = static_cast<GLint>(pos.z);
+		/*static auto CalcN = [this, Grid](const GLuint& x, const GLuint& y, const GLuint& z)
+		{
+			if (Grid[x][y][z] != -1)
+			{
+				GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
+				GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
+				GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
+
+				return glm::normalize(glm::vec3(dx, dy, dz));
+			} 
+
+			return glm::vec3(0.f);
+		};*/
+
+		GLuint x = static_cast<GLuint>(pos.x);
+		GLuint y = static_cast<GLuint>(pos.y);
+		GLuint z = static_cast<GLuint>(pos.z);
 
 		GLfloat fx = pos.x - x;
 		GLfloat fy = pos.y - y;
@@ -380,6 +394,12 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 
 		glm::vec3 x2 = N[x][y + 1][z] * (1.0f - fx) + N[x + 1][y + 1][z] * fx;
 		glm::vec3 x3 = N[x][y + 1][z + 1] * (1.0f - fx) + N[x + 1][y + 1][z + 1] * fx;
+
+		/*glm::vec3 x0 = CalcN(x, y, z) * (1.0f - fx) + CalcN(x + 1, y, z) * fx;
+		glm::vec3 x1 = CalcN(x, y, z + 1) * (1.0f - fx) + CalcN(x + 1, y, z + 1) * fx;
+
+		glm::vec3 x2 = CalcN(x, y + 1, z) * (1.0f - fx) + CalcN(x + 1, y + 1, z) * fx;
+		glm::vec3 x3 = CalcN(x, y + 1, z + 1) * (1.0f - fx) + CalcN(x + 1, y + 1, z + 1) * fx;*/
 
 		glm::vec3 z0 = x0 * (1.0f - fz) + x1 * fz;
 		glm::vec3 z1 = x2 * (1.0f - fz) + x3 * fz;

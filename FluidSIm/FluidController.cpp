@@ -460,8 +460,8 @@ void FluidController::InitBlobs()
 
 	// Set blob transform
 	glm::mat4 Model;
-	Model = glm::translate(Model, glm::vec3(0.f, -20.f, 0.f));
-	Model = glm::scale(Model, glm::vec3(0.5f, 0.5f, 0.5f));
+	//Model = glm::translate(Model, glm::vec3(0.f, -20.f, 0.f));
+	//Model = glm::scale(Model, glm::vec3(0.5f, 0.5f, 0.5f));
 	RESOURCEMANAGER.GetShader("Blobs").SetMatrix4("Model", Model, true);
 }
 

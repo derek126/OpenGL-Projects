@@ -44,7 +44,7 @@ private:
 	void ComputeNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz);
 
 	// State
-	const GLuint Resolution = 64;
+	const GLuint Resolution = 32;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
 
