@@ -41,7 +41,7 @@ void LagrangianController::Initialize()
 	glEnable(GL_DEPTH_TEST);
 }
 
-void LagrangianController::Update(const GLdouble& dt)
+void LagrangianController::Update(const GLfloat& dt)
 {
 
 }

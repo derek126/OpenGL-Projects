@@ -91,10 +91,10 @@ void FluidController::Initialize()
 	InitGrass();
 }
 
-void FluidController::Update(const GLdouble& dt)
+void FluidController::Update(const GLfloat& dt)
 {
 	// Wait for the scene to fully load
-	static GLdouble accum = 0;
+	static GLfloat accum = 0;
 	accum += dt;
 	if (accum < 2.5f)
 	{

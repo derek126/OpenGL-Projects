@@ -85,7 +85,7 @@ void SpringController::Initialize()
 	InitAngularSpring();
 }
 
-void SpringController::Update(const GLdouble& dt)
+void SpringController::Update(const GLfloat& dt)
 {
 	static GLdouble accum = 0;
 	accum += dt;
@@ -104,24 +104,24 @@ void SpringController::Update(const GLdouble& dt)
 	// Run spring simulations
 	for (auto& Spring : Springs)
 	{
-		Spring->Simulate(static_cast<GLfloat>(dt));
+		Spring->Simulate(dt);
 	}
 
 	for (auto& AngSpring : AngSprings)
 	{
-		AngSpring->Simulate(static_cast<GLfloat>(dt));
+		AngSpring->Simulate(dt);
 	}
 
 	// Update mass velocities
 	for (auto& Mass : Masses)
 	{
-		Mass->Update(static_cast<GLfloat>(dt));
+		Mass->Update(dt);
 	}
 
 	// Update camera
 	if (bIsCameraMoving)
 	{
-		UpdateCamera(static_cast<GLfloat>(dt));
+		UpdateCamera(dt);
 	}
 }
 

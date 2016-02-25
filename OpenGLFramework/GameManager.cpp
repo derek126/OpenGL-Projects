@@ -8,7 +8,7 @@
 GameManager::GameManager() :
 	Window(nullptr),
 	Controller(nullptr),
-	TargetFrametime(1.0 / 60.0),
+	TargetFrametime(1.f / 60.f),
 	ClearColor(0.16f, 0.18f, 0.22f, 1.0f)
 {
 	if (!glfwInit())
@@ -40,7 +40,7 @@ GameManager& GameManager::GetInstance()
 
 void GameManager::SetTargetFrametime(const GLuint& Rate)
 {
-	TargetFrametime = 1.0 / static_cast<GLdouble>(Rate);
+	TargetFrametime = 1.f / static_cast<GLfloat>(Rate);
 }
 
 void GameManager::SetClearColor(const glm::vec4& Color)
@@ -86,8 +86,7 @@ void GameManager::Run()
 	Controller->Initialize();
 
 	// Used to display frame time
-	GLdouble deltaTime = 0, lastFrame = 0, accumulator = 0, frameTime = glfwGetTime();
-	GLuint fpsCounter = 0;
+	GLdouble deltaTime = 0, lastFrame = 0, accumulator = 0, frameTime = glfwGetTime(), fpsCounter = 0;
 
 	while (!glfwWindowShouldClose(Window))
 	{
@@ -100,7 +99,7 @@ void GameManager::Run()
 		if (currentFrame - frameTime >= 1.0)
 		{
 			// Shows frame time in the window header
-			glfwSetWindowTitle(Window, (Controller->Title + std::string(" ") + std::to_string(1000.0 / static_cast<GLdouble>(fpsCounter)) + " ms/frame\n").c_str());
+			glfwSetWindowTitle(Window, (Controller->Title + std::string(" ") + std::to_string(1000.0 / fpsCounter) + " ms/frame\n").c_str());
 			fpsCounter = 0;
 			frameTime += 1.0;
 		}
@@ -110,7 +109,7 @@ void GameManager::Run()
 		{
 			// Check for events, process any input, and then update the controller
 			glfwPollEvents();
-			Controller->Update(TargetFrametime);
+			Controller->Update(static_cast<GLfloat>(TargetFrametime));
 			accumulator -= TargetFrametime;
 		}
 

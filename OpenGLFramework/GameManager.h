@@ -45,7 +45,7 @@ private:
 	// State
 	GLFWwindow* Window;
 	std::unique_ptr<class GameController> Controller;
-	GLdouble TargetFrametime;
+	GLfloat TargetFrametime;
 	glm::vec4 ClearColor;
 
 	// Callbacks
