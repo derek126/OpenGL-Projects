@@ -15,6 +15,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FluidSim", "FluidSIm\FluidS
 		{7DEF769B-339B-4740-9FC2-6FFDB3DA911F} = {7DEF769B-339B-4740-9FC2-6FFDB3DA911F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lagrangian", "Lagrangian\Lagrangian.vcxproj", "{3F443783-8394-451D-A838-1BE72AFDD158}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7DEF769B-339B-4740-9FC2-6FFDB3DA911F} = {7DEF769B-339B-4740-9FC2-6FFDB3DA911F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -47,6 +52,14 @@ Global
 		{E1A09FD1-B079-45A2-B774-9253F36E1C69}.Release|x64.Build.0 = Release|x64
 		{E1A09FD1-B079-45A2-B774-9253F36E1C69}.Release|x86.ActiveCfg = Release|Win32
 		{E1A09FD1-B079-45A2-B774-9253F36E1C69}.Release|x86.Build.0 = Release|Win32
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Debug|x64.ActiveCfg = Debug|x64
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Debug|x64.Build.0 = Debug|x64
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Debug|x86.ActiveCfg = Debug|Win32
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Debug|x86.Build.0 = Debug|Win32
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Release|x64.ActiveCfg = Release|x64
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Release|x64.Build.0 = Release|x64
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Release|x86.ActiveCfg = Release|Win32
+		{3F443783-8394-451D-A838-1BE72AFDD158}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
