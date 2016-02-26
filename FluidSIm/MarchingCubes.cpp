@@ -347,6 +347,8 @@ void MarchingCubes::SetIsolevel(const GLfloat& Iso)
 // TODO : This needs some attention...
 void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
 {
+	Normals.clear();
+
 	for (GLuint x = 2; x < Resolution - 2; x++)
 	{
 		for (GLuint y = 2; y < Resolution - 2; y++)
@@ -369,16 +371,11 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 	{
 		/*static auto CalcN = [this, Grid](const GLuint& x, const GLuint& y, const GLuint& z)
 		{
-			if (Grid[x][y][z] != -1)
-			{
-				GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
-				GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
-				GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
+			GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
+			GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
+			GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
 
-				return glm::normalize(glm::vec3(dx, dy, dz));
-			} 
-
-			return glm::vec3(0.f);
+			return glm::normalize(glm::vec3(dx, dy, dz));
 		};*/
 
 		GLuint x = static_cast<GLuint>(pos.x);
@@ -447,7 +444,7 @@ GLint MarchingCubes::MarchCube(const std::vector<std::vector<std::vector<GLfloat
 	for (GLuint i = 0; i < 8; i++) if (Cube[i] <= Isolevel) Index |= 1 << i;
 
 	// Either fully inside or outside of the surface
-	if (EdgeTable[Index] == 0) return EdgeTable[Index];
+	if (EdgeTable[Index] == 0) EdgeTable[Index];
 
 	for (GLuint i = 0; i < 12; i++)
 	{
@@ -481,10 +478,10 @@ GLint MarchingCubes::MarchCube(const std::vector<std::vector<std::vector<GLfloat
 		Indices.push_back(idx + 2);
 		Vertices.push_back(NewVerts[Vert]);
 
-		//glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
-		//Normals.push_back(Normal);
-		//Normals.push_back(Normal);
-		//Normals.push_back(Normal);
+		glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
+		Normals.push_back(Normal);
+		Normals.push_back(Normal);
+		Normals.push_back(Normal);
 	}
 
 	return EdgeTable[Index];

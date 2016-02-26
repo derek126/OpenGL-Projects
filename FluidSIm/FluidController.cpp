@@ -10,7 +10,7 @@
 #define MIN_VELOCITY -5.f
 #define MAX_VELOCITY 5.f
 #define MAIN_RADIUS 4.f
-#define SECONDARY_RADIUS 1.5f
+#define SECONDARY_RADIUS 2.5f
 
 FluidController::FluidController()
 {
@@ -111,6 +111,16 @@ void FluidController::Update(const GLfloat& dt)
 		Blobs[i].Position += Blobs[i].Velocity * static_cast<GLfloat>(dt);
 	}
 
+	/*for (GLuint i = 0; i < Blobs.size(); i++)
+	{
+		glm::vec3 P = Blobs[i].Position;
+		if (P.x <= 0 || P.x >= Resolution - 1 || P.y <= 0 || P.y >= Resolution - 1 || P.z <= 0 || P.z >= Resolution - 1)
+		{
+			Blobs[i].Velocity = -Blobs[i].Velocity;
+		}
+		Blobs[i].Position += Blobs[i].Velocity * static_cast<GLfloat>(dt);
+	}*/
+
 	MeshBuilder->ClearMesh(); // Clear previous mesh
 	ComputeVoxels(); // Create new mesh
 	MeshBuilder->CalculateNormals(Grid); // Create smoothed normals
@@ -191,9 +201,9 @@ void FluidController::AddNeighbours(const GLuint& gx, const GLuint& gy, const GL
 		{
 			for (GLuint z = gz - 1; z <= gz + 1; z++)
 			{
-				if (!IsComputed[x][y][z] && x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
+				if (x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0 && !IsComputed[x][y][z])
 				{
-					Neighbours.push_back(glm::vec3(x, y, z));
+					Neighbours.push(glm::vec3(x, y, z));
 				}
 			}
 		}
@@ -220,24 +230,7 @@ void FluidController::ComputeNeighbours(const GLuint& gx, const GLuint& gy, cons
 
 void FluidController::ComputeVoxels()
 {
-	/*for (GLuint i = 0; i < Resolution; i++)
-	{
-		for (GLuint j = 0; j < Resolution; j++)
-		{
-			for (GLuint k = 0; k < Resolution; k++)
-			{
-				GLfloat val = 0;
-				for (GLuint b = 0; b < Blobs.size(); b++)
-				{
-					val += glm::pow(Blobs[b].Radius, 2) / (glm::pow(i - Blobs[b].Position.x, 2) + glm::pow(j - Blobs[b].Position.y, 2) + glm::pow(k - Blobs[b].Position.z, 2));
-				}
-
-				Grid[i][j][k] = val;
-			}
-		}
-	}*/
-
-	/*static auto Compute = [this](const GLuint& B, const GLuint& E) 
+	static auto Compute = [this](const GLuint& B, const GLuint& E) 
 	{
 		for (GLuint i = B; i < E; i++)
 		{
@@ -255,16 +248,9 @@ void FluidController::ComputeVoxels()
 				}
 			}
 		}
-	};*/
+	};
 
-	/*GLuint R = Resolution / 4;
-	std::vector<std::thread> Threads;
-	Threads.push_back(std::thread(Compute, 0, R));
-	Threads.push_back(std::thread(Compute, R, R * 2));
-	Threads.push_back(std::thread(Compute, R * 2, R * 3));
-	Threads.push_back(std::thread(Compute, R * 3, R * 4));*/
-
-	/*GLuint R = Resolution / 8;
+	GLuint R = Resolution / 8;
 	std::vector<std::thread> Threads;
 	Threads.push_back(std::thread(Compute, 0, R));
 	Threads.push_back(std::thread(Compute, R, R * 2));
@@ -278,9 +264,20 @@ void FluidController::ComputeVoxels()
 	for (std::thread& Thread : Threads)
 	{
 		Thread.join();
-	}*/
+	}
 
-	// Reset the buffers
+	for (GLuint i = 0; i < Resolution; i++)
+	{
+		for (GLuint j = 0; j < Resolution; j++)
+		{
+			for (GLuint k = 0; k < Resolution; k++)
+			{
+				MeshBuilder->MarchCube(Grid, i, j, k);
+			}
+		}
+	}
+
+	/*// Reset the buffers
 	for (GLuint i = 0; i < Resolution; i++)
 	{
 		for (GLuint j = 0; j < Resolution; j++)
@@ -296,9 +293,9 @@ void FluidController::ComputeVoxels()
 	for (GLuint b = 0; b < Blobs.size(); b++)
 	{
 		// Center point of blob
-		gx = static_cast<GLuint>(glm::floor(Blobs[b].Position.x)),
-		gy = static_cast<GLuint>(glm::floor(Blobs[b].Position.y)),
-		gz = static_cast<GLuint>(glm::floor(Blobs[b].Position.z));
+		gx = static_cast<GLuint>(Blobs[b].Position.x),
+		gy = static_cast<GLuint>(Blobs[b].Position.y),
+		gz = static_cast<GLuint>(Blobs[b].Position.z);
 
 		ComputeNeighbours(gx, gy, gz);
 		Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
@@ -309,33 +306,40 @@ void FluidController::ComputeVoxels()
 		{
 			if (++gy < Resolution)
 			{
-				Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
-				IsComputed[gx][gy][gz] = GL_TRUE;
+				if (!IsComputed[gx][gy][gz])
+				{
+					Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
+					IsComputed[gx][gy][gz] = GL_TRUE;
+				}
 				continue;
 			}
 			break;
 		}
 
-		// If we found a face, add the neighbouring points
+		// If we found an edge, add the neighbouring points
 		if (Case != 0) AddNeighbours(gx, gy, gz);
 
 		// Repeat for each neighbouring point until the mesh is built
-		while (Neighbours.size() > 0)
+		while (!Neighbours.empty())
 		{
-			N = Neighbours.back();
-			Neighbours.pop_back();
+			N = Neighbours.front();
+			Neighbours.pop();
 
 			gx = static_cast<GLuint>(N.x),
 			gy = static_cast<GLuint>(N.y),
 			gz = static_cast<GLuint>(N.z);
 
 			ComputeNeighbours(gx, gy, gz);
-			Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
-			IsComputed[gx][gy][gz] = GL_TRUE;
+			Case = 0;
+			if (!IsComputed[gx][gy][gz])
+			{
+				Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
+				IsComputed[gx][gy][gz] = GL_TRUE;
+			}
 
 			if (Case != 0) AddNeighbours(gx, gy, gz);
 		}
-	}
+	}*/
 }
 
 GLfloat FluidController::ComputeAtGrid(const GLuint& ix, const GLuint& iy, const GLuint& iz)
@@ -444,7 +448,7 @@ void FluidController::InitBlobs()
 	RESOURCEMANAGER.LoadShader("blobs.vs", "blobs.fs", nullptr, "Blobs");
 
 	// Add blobs
-	Blobs.push_back(Blob(glm::vec3(0.f), glm::vec3(Resolution / 2.f), MAIN_RADIUS)); // Main blob
+	//Blobs.push_back(Blob(glm::vec3(0.f), glm::vec3(Resolution / 2.f), MAIN_RADIUS)); // Main blob
 
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));
 	Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), SECONDARY_RADIUS));

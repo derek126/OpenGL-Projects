@@ -127,11 +127,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FluidController.cpp" />
+    <ClCompile Include="IBoidsController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MarchingCubes.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FluidController.h" />
+    <ClInclude Include="IBoidsController.h" />
     <ClInclude Include="MarchingCubes.h" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +141,8 @@
     <None Include="blobs.vs" />
     <None Include="grass.fs" />
     <None Include="grass.vs" />
+    <None Include="boids.fs" />
+    <None Include="boids.vs" />
     <None Include="skybox.fs" />
     <None Include="skybox.vs" />
   </ItemGroup>

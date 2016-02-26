@@ -3,19 +3,13 @@
 #include "GameController.h"
 #include "MarchingCubes.h"
 
-#include <vector>
 #include <queue>
 
-/*
-* Sets up and showcases several different springs
-*/
-class FluidController : public GameController
+class IBoidsController : public GameController
 {
-
 public:
-
-	FluidController();
-	~FluidController();
+	IBoidsController();
+	~IBoidsController();
 
 	// GameController Interface
 	virtual void Initialize() override;
@@ -44,6 +38,8 @@ private:
 	void AddNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz);
 	void ComputeNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz);
 
+	void InitBoids();
+
 	// State
 	const GLuint Resolution = 32;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
@@ -52,11 +48,6 @@ private:
 	// Buffers to refrain from allocating new memory every frame...
 	std::vector<std::vector<std::vector<GLboolean>>> IsComputed;
 	std::queue<glm::vec3> Neighbours;
-
-	// Functions to initialize various aspects of the scene
-	void InitSkybox();
-	void InitBlobs();
-	void InitGrass();
 
 	MarchingCubes* MeshBuilder; // Computes the mesh, retrieve vertices, indices and normals from here
 	std::map<std::string, GLuint> Buffers; // Buffer storage

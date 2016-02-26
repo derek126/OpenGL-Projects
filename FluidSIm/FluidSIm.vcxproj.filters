@@ -4,10 +4,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="FluidController.cpp" />
     <ClCompile Include="MarchingCubes.cpp" />
+    <ClCompile Include="IBoidsController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FluidController.h" />
     <ClInclude Include="MarchingCubes.h" />
+    <ClInclude Include="IBoidsController.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="blobs.vs" />
@@ -16,5 +18,7 @@
     <None Include="skybox.fs" />
     <None Include="grass.vs" />
     <None Include="grass.fs" />
+    <None Include="boids.vs" />
+    <None Include="boids.fs" />
   </ItemGroup>
 </Project>
