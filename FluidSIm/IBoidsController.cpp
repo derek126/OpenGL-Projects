@@ -7,13 +7,13 @@
 #define ScreenX 1920
 #define ScreenY 1080
 
-#define MAX_SPEED 10.f
+#define MAX_SPEED 16.f
 #define RADIUS 3.f
 #define NUM_BLOBS 32
 
 #define NEIGHBOURHOOD RADIUS * 8.f
 #define SEPERATION_DIST NEIGHBOURHOOD * 2.f
-#define AVOID_EDGE_FACTOR 32.f // Best not to change this or they may go out of bounds
+#define AVOID_EDGE_FACTOR 128.f // Best not to change this or they may go out of bounds
 #define ALIGNMENT_FACTOR 2.5f
 #define COHESION_FACTOR 1.f
 #define SEPERATION_FACTOR 1.5f
