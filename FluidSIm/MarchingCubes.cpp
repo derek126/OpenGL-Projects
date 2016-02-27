@@ -349,17 +349,18 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 {
 	Normals.clear();
 
-	for (GLuint x = 2; x < Resolution - 2; x++)
+	GLfloat dx, dy, dz;
+	for (GLuint x = 2; x < Resolution - 3; x++)
 	{
-		for (GLuint y = 2; y < Resolution - 2; y++)
+		for (GLuint y = 2; y < Resolution - 3; y++)
 		{
-			for (GLuint z = 2; z < Resolution - 2; z++)
+			for (GLuint z = 2; z < Resolution - 3; z++)
 			{
 				if (Grid[x][y][z] != -1.f)
 				{
-					GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
-					GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
-					GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
+					dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
+					dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
+					dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
 
 					N[x][y][z] = glm::normalize(glm::vec3(dx, dy, dz));
 				}
@@ -369,15 +370,6 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 
 	static auto TriLERPNormal = [this, Grid](const glm::vec3& pos)
 	{
-		/*static auto CalcN = [this, Grid](const GLuint& x, const GLuint& y, const GLuint& z)
-		{
-			GLfloat dx = Grid[x + 1][y][z] - Grid[x - 1][y][z];
-			GLfloat dy = Grid[x][y + 1][z] - Grid[x][y - 1][z];
-			GLfloat dz = Grid[x][y][z + 1] - Grid[x][y][z - 1];
-
-			return glm::normalize(glm::vec3(dx, dy, dz));
-		};*/
-
 		GLuint x = static_cast<GLuint>(pos.x);
 		GLuint y = static_cast<GLuint>(pos.y);
 		GLuint z = static_cast<GLuint>(pos.z);
@@ -391,12 +383,6 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 
 		glm::vec3 x2 = N[x][y + 1][z] * (1.0f - fx) + N[x + 1][y + 1][z] * fx;
 		glm::vec3 x3 = N[x][y + 1][z + 1] * (1.0f - fx) + N[x + 1][y + 1][z + 1] * fx;
-
-		/*glm::vec3 x0 = CalcN(x, y, z) * (1.0f - fx) + CalcN(x + 1, y, z) * fx;
-		glm::vec3 x1 = CalcN(x, y, z + 1) * (1.0f - fx) + CalcN(x + 1, y, z + 1) * fx;
-
-		glm::vec3 x2 = CalcN(x, y + 1, z) * (1.0f - fx) + CalcN(x + 1, y + 1, z) * fx;
-		glm::vec3 x3 = CalcN(x, y + 1, z + 1) * (1.0f - fx) + CalcN(x + 1, y + 1, z + 1) * fx;*/
 
 		glm::vec3 z0 = x0 * (1.0f - fz) + x1 * fz;
 		glm::vec3 z1 = x2 * (1.0f - fz) + x3 * fz;

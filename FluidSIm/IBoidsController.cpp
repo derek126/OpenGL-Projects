@@ -7,10 +7,10 @@
 #define ScreenX 1920
 #define ScreenY 1080
 
-#define MIN_VELOCITY -5.f
-#define MAX_VELOCITY 5.f
-#define RADIUS 5.f
-#define NUM_BLOBS 15
+#define MIN_VELOCITY -10.f
+#define MAX_VELOCITY 10.f
+#define RADIUS 4.f
+#define NUM_BLOBS 16
 #define NEIGHBOURHOOD 5.f + RADIUS
 
 IBoidsController::IBoidsController()
@@ -60,7 +60,7 @@ void IBoidsController::Initialize()
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(ScreenX, ScreenY);
 
-	Camera->SetPosition(glm::vec3(0.f, 45.f, 45.0f));
+	Camera->SetPosition(glm::vec3(0.f, 90.f, 90.0f));
 	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
@@ -69,7 +69,7 @@ void IBoidsController::Initialize()
 	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	// Set the directional light direction and color
-	RESOURCEMANAGER.SetLightDirection(glm::vec3(0.f, 45.f, 45.0f));
+	RESOURCEMANAGER.SetLightDirection(glm::vec3(0.f, 90.f, 90.0f));
 	RESOURCEMANAGER.SetLightColor(glm::vec3(1.f, 1.f, 1.f));
 
 	// OpenGL configuration
@@ -87,7 +87,7 @@ void IBoidsController::Update(const GLfloat& dt)
 
 	MeshBuilder->ClearMesh(); // Clear previous mesh
 	ComputeVoxels(); // Create new mesh
-	//MeshBuilder->CalculateNormals(Grid); // Calculate smoothed normals
+	MeshBuilder->CalculateNormals(Grid); // Calculate smoothed normals
 }
 
 void IBoidsController::AddNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz)
@@ -111,11 +111,11 @@ void IBoidsController::AddNeighbours(const GLuint& gx, const GLuint& gy, const G
 void IBoidsController::ComputeNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz)
 {
 	// Computes the neighbours for each cube vertex
-	for (GLuint x = gx - 1; x <= gx + 1; x++)
+	for (GLuint x = gx; x <= gx + 1; x++)
 	{
-		for (GLuint y = gy - 1; y <= gy + 1; y++)
+		for (GLuint y = gy; y <= gy + 1; y++)
 		{
-			for (GLuint z = gz - 1; z <= gz + 1; z++)
+			for (GLuint z = gz; z <= gz + 1; z++)
 			{
 				if (x < Resolution && x >= 0 && y < Resolution && y >= 0 && z < Resolution && z >= 0)
 				{
@@ -138,84 +138,30 @@ void IBoidsController::ComputeVoxels()
 		}
 	}
 
+	GLuint gx, gy, gz;
 	for (GLuint b = 0; b < Blobs.size(); b++)
 	{
 		// Center point of blob
-		GLuint gx = static_cast<GLuint>(Blobs[b].Position.x);
-		GLuint gy = static_cast<GLuint>(Blobs[b].Position.y);
-		GLuint gz = static_cast<GLuint>(Blobs[b].Position.z);
+		gx = static_cast<GLuint>(Blobs[b].Position.x);
+		gy = static_cast<GLuint>(Blobs[b].Position.y);
+		gz = static_cast<GLuint>(Blobs[b].Position.z);
 
 		ComputeNeighbours(gx, gy, gz);
 		GLint Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
 		IsComputed[gx][gy][gz] = GL_TRUE;
 
 		// If this blobs center point is totally inside the mesh, inch upward until we find a face
-		GLint py = gy, ny = gy;
-		GLint px = gx, nx = gx;
-		GLint pz = gz, nz = gz;
-		GLint R = static_cast<GLint>(Resolution);
-		while (true)
+		while (Case == 0)
 		{
-			if (++py < R && !IsComputed[gx][py][gz])
+			if (++gy < Resolution && !IsComputed[gx][gy][gz])
 			{
-				ComputeNeighbours(gx, py, gz);
-				Case = MeshBuilder->MarchCube(Grid, gx, py, gz);
-				IsComputed[gx][py][gz] = GL_TRUE;
+				ComputeNeighbours(gx, gy, gz);
+				Case = MeshBuilder->MarchCube(Grid, gx, gy, gz);
+				IsComputed[gx][gy][gz] = GL_TRUE;
 				// If we found an edge, add the neighbouring points
-				if (Case != 0) AddNeighbours(gx, py, gz);
+				if (Case != 0) AddNeighbours(gx, gy, gz);
 				continue;
 			}
-
-			if (--ny >= 0 && !IsComputed[gx][ny][gz])
-			{
-				ComputeNeighbours(gx, ny, gz);
-				Case = MeshBuilder->MarchCube(Grid, gx, ny, gz);
-				IsComputed[gx][ny][gz] = GL_TRUE;
-				// If we found an edge, add the neighbouring points
-				if (Case != 0) AddNeighbours(gx, ny, gz);
-				continue;
-			}
-
-			if (++px < R && !IsComputed[px][gy][gz])
-			{
-				ComputeNeighbours(px, gy, gz);
-				Case = MeshBuilder->MarchCube(Grid, px, gy, gz);
-				IsComputed[px][gy][gz] = GL_TRUE;
-				// If we found an edge, add the neighbouring points
-				if (Case != 0) AddNeighbours(px, gy, gz);
-				continue;
-			}
-
-			if (--nx >= 0 && !IsComputed[nx][gy][gz])
-			{
-				ComputeNeighbours(nx, gy, gz);
-				Case = MeshBuilder->MarchCube(Grid, nx, gy, gz);
-				IsComputed[nx][gy][gz] = GL_TRUE;
-				// If we found an edge, add the neighbouring points
-				if (Case != 0) AddNeighbours(nx, gy, gz);
-				continue;
-			}
-
-			if (++pz < R && !IsComputed[gx][gy][pz])
-			{
-				ComputeNeighbours(gx, gy, pz);
-				Case = MeshBuilder->MarchCube(Grid, gx, gy, pz);
-				IsComputed[gx][gy][pz] = GL_TRUE;
-				// If we found an edge, add the neighbouring points
-				if (Case != 0) AddNeighbours(gx, gy, pz);
-				continue;
-			}
-
-			if (--nz >= 0 && !IsComputed[gx][gy][nz])
-			{
-				ComputeNeighbours(gx, gy, nz);
-				Case = MeshBuilder->MarchCube(Grid, gx, gy, nz);
-				IsComputed[gx][gy][nz] = GL_TRUE;
-				// If we found an edge, add the neighbouring points
-				if (Case != 0) AddNeighbours(gx, gy, nz);
-				continue;
-			}
-
 			break;
 		}
 
@@ -326,6 +272,7 @@ void IBoidsController::InitBoids()
 	{
 		Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), RADIUS));
 	}
+	//Blobs.push_back(Blob(glm::vec3(10.f, 0.f, 0.f), glm::vec3(Resolution / 2.f), RADIUS));
 
 	// Set blob transform
 	glm::mat4 Model;
@@ -338,6 +285,14 @@ void IBoidsController::UpdateBoids(const GLfloat& dt)
 {
 	for (GLuint i = 0; i < Blobs.size(); i++)
 	{
+		// Avoid the edges of the grid
+		glm::vec3 P = Blobs[i].Position;
+		if (P.x <= RADIUS * 2 || P.x >= Resolution - RADIUS * 2 - 1 || P.y <= RADIUS * 2 || P.y >= Resolution - RADIUS * 2 - 1 || P.z <= RADIUS * 2 || P.z >= Resolution - RADIUS * 2 - 1)
+		{
+			Blobs[i].Velocity = -Blobs[i].Velocity;
+		}
+
+		// Maintain a velocity between the preset MAX and MIN
 		GLfloat Mag = glm::length(Blobs[i].Velocity);
 		if (Mag > MAX_VELOCITY)
 		{
@@ -349,12 +304,7 @@ void IBoidsController::UpdateBoids(const GLfloat& dt)
 			Blobs[i].Velocity = glm::normalize(Blobs[i].Velocity) * MIN_VELOCITY;
 		}
 
-		glm::vec3 P = Blobs[i].Position;
-		if (P.x <= 1 || P.x >= Resolution - 2 || P.y <= 1 || P.y >= Resolution - 2 || P.z <= 1 || P.z >= Resolution - 2)
-		{
-			Blobs[i].Velocity = -Blobs[i].Velocity;
-		}
-
+		// Move the blob
 		Blobs[i].Position += Blobs[i].Velocity * dt;
 	}
 }

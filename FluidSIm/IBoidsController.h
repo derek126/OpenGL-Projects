@@ -55,7 +55,7 @@ private:
 	void InitBoids();
 
 	// State
-	const GLuint Resolution = 64;
+	const GLuint Resolution = 128;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
 
