@@ -8,12 +8,12 @@
 #define ScreenY 1080
 
 #define MAX_SPEED 10.f
-#define RADIUS 4.f
-#define NUM_BLOBS 20
+#define RADIUS 3.f
+#define NUM_BLOBS 32
 
 #define NEIGHBOURHOOD RADIUS * 4.f
-#define SEPERATION_DIST RADIUS * 2.f
-#define AVOID_EDGE_FACTOR 1024.f // Best not to change this or they may go out of bounds
+#define SEPERATION_DIST NEIGHBOURHOOD * 2.f
+#define AVOID_EDGE_FACTOR 32.f // Best not to change this or they may go out of bounds
 #define ALIGNMENT_FACTOR 1.5f
 #define COHESION_FACTOR 1.f
 #define SEPERATION_FACTOR 1.f
@@ -69,7 +69,7 @@ void IBoidsController::Initialize()
 	SetScreenDimensions(ScreenX, ScreenY);
 
 	Camera->SetPosition(glm::vec3(0.f, 90.f, 90.0f));
-	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
+	Camera->SetFocus(glm::vec3(Resolution / 2.f, -10.f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
 
@@ -226,6 +226,12 @@ void IBoidsController::ProcessInput(const GLint& Key, const GLint& Action, const
 	{
 		Sep = !Sep;
 		std::cout << "Sepration: " << (Sep ? "On" : "Off") << std::endl;
+	}
+
+	if (Key == GLFW_KEY_SPACE && Action == GLFW_RELEASE)
+	{
+		Camera->SetFocus(glm::vec3(Resolution / 2.f, -10.f, 0.f));
+		Camera->UpdateView();
 	}
 }
 
