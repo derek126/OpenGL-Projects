@@ -1,19 +1,27 @@
 #include "IBoidsController.h"
 #include <ResourceManager.h>
 
-#include <thread>
+#include <iostream>
 #include <glm\gtc\random.hpp>
 
 #define ScreenX 1920
 #define ScreenY 1080
 
-#define MIN_VELOCITY -10.f
-#define MAX_VELOCITY 10.f
+#define MAX_SPEED 10.f
 #define RADIUS 4.f
-#define NUM_BLOBS 16
-#define NEIGHBOURHOOD 5.f + RADIUS
+#define NUM_BLOBS 20
 
-IBoidsController::IBoidsController()
+#define NEIGHBOURHOOD RADIUS * 4.f
+#define SEPERATION_DIST RADIUS * 2.f
+#define AVOID_EDGE_FACTOR 1024.f // Best not to change this or they may go out of bounds
+#define ALIGNMENT_FACTOR 1.5f
+#define COHESION_FACTOR 1.f
+#define SEPERATION_FACTOR 1.f
+
+IBoidsController::IBoidsController() :
+	Ali(GL_FALSE), 
+	Coh(GL_FALSE), 
+	Sep(GL_FALSE)
 {
 	// Create the mesh builder
 	MeshBuilder = new MarchingCubes(Resolution);
@@ -202,6 +210,23 @@ GLfloat IBoidsController::ComputeAtGrid(const GLuint& ix, const GLuint& iy, cons
 
 void IBoidsController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
 {
+	if (Key == GLFW_KEY_LEFT && Action == GLFW_RELEASE)
+	{
+		Ali = !Ali;
+		std::cout << "Alignment: " << (Ali ? "On" : "Off") << std::endl;
+	}
+
+	if (Key == GLFW_KEY_UP && Action == GLFW_RELEASE)
+	{
+		Coh = !Coh;
+		std::cout << "Cohesion: " << (Coh ? "On" : "Off") << std::endl;
+	}
+
+	if (Key == GLFW_KEY_RIGHT && Action == GLFW_RELEASE)
+	{
+		Sep = !Sep;
+		std::cout << "Sepration: " << (Sep ? "On" : "Off") << std::endl;
+	}
 }
 
 void IBoidsController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
@@ -268,9 +293,10 @@ void IBoidsController::InitBoids()
 	RESOURCEMANAGER.GetShader("Boids").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 
 	// Add blobs
+	GLfloat R = static_cast<GLfloat>(Resolution);
 	for (GLuint i = 0; i < NUM_BLOBS; i++)
 	{
-		Blobs.push_back(Blob(glm::vec3(glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY), glm::linearRand(MIN_VELOCITY, MAX_VELOCITY)), glm::vec3(Resolution / 2.f), RADIUS));
+		Blobs.push_back(Blob(glm::vec3(glm::linearRand(-MAX_SPEED, MAX_SPEED), glm::linearRand(-MAX_SPEED, MAX_SPEED), glm::linearRand(-MAX_SPEED, MAX_SPEED)), glm::vec3(glm::linearRand(32.f, R - 32.f), glm::linearRand(32.f, R - 32.f), glm::linearRand(32.f, R - 32.f)), RADIUS));
 	}
 	//Blobs.push_back(Blob(glm::vec3(10.f, 0.f, 0.f), glm::vec3(Resolution / 2.f), RADIUS));
 
@@ -285,47 +311,159 @@ void IBoidsController::UpdateBoids(const GLfloat& dt)
 {
 	for (GLuint i = 0; i < Blobs.size(); i++)
 	{
-		// Avoid the edges of the grid
-		glm::vec3 P = Blobs[i].Position;
-		if (P.x <= RADIUS * 2 || P.x >= Resolution - RADIUS * 2 - 1 || P.y <= RADIUS * 2 || P.y >= Resolution - RADIUS * 2 - 1 || P.z <= RADIUS * 2 || P.z >= Resolution - RADIUS * 2 - 1)
-		{
-			Blobs[i].Velocity = -Blobs[i].Velocity;
-		}
+		Blobs[i].Acceleration += (AvoidEdge(Blobs[i]) + Alignment(Blobs[i]) + Cohesion(Blobs[i]) + Seperation(Blobs[i]));
+		Blobs[i].Velocity += Blobs[i].Acceleration * dt;
 
-		// Maintain a velocity between the preset MAX and MIN
+		// Maintain a velocity between the preset MAX
 		GLfloat Mag = glm::length(Blobs[i].Velocity);
-		if (Mag > MAX_VELOCITY)
+		if (Mag > MAX_SPEED)
 		{
-			Blobs[i].Velocity = glm::normalize(Blobs[i].Velocity) * MAX_VELOCITY;
-		}
-
-		if (Mag < MIN_VELOCITY)
-		{
-			Blobs[i].Velocity = glm::normalize(Blobs[i].Velocity) * MIN_VELOCITY;
+			Blobs[i].Velocity = glm::normalize(Blobs[i].Velocity) * MAX_SPEED;
 		}
 
 		// Move the blob
 		Blobs[i].Position += Blobs[i].Velocity * dt;
+		Blobs[i].Acceleration = glm::vec3(0.f);
 	}
 }
 
 glm::vec3 IBoidsController::Alignment(Blob& B)
 {
-	glm::vec3 A(0.f);
+	if (!Ali) return glm::vec3(0.f);
 
-	return A;
+	glm::vec3 A(0.f);
+	GLfloat Num = 0, Distance;
+	for (GLuint i = 0; i < Blobs.size(); i++)
+	{
+		if (B != Blobs[i])
+		{
+			Distance = glm::distance(B.Position, Blobs[i].Position);
+			if (Distance > 0 && Distance < NEIGHBOURHOOD)
+			{
+				A += Blobs[i].Velocity / Distance;
+				Num++;
+			}
+		}
+	}
+
+	if (Num > 0)
+	{
+		A = A / Num;
+		return A * ALIGNMENT_FACTOR;
+	}
+
+	return glm::vec3(0.f);
 }
 
 glm::vec3 IBoidsController::Cohesion(Blob& B)
 {
-	glm::vec3 C;
+	if (!Coh) return glm::vec3(0.f);
 
-	return C;
+	glm::vec3 C(0.f);
+	GLfloat Num = 0, Distance;
+	for (GLuint i = 0; i < Blobs.size(); i++)
+	{
+		if (B != Blobs[i])
+		{
+			Distance = glm::distance(B.Position, Blobs[i].Position);
+			if (Distance > 0 && Distance < NEIGHBOURHOOD)
+			{
+				C += Blobs[i].Position;
+				Num++;
+			}
+		}
+	}
+
+	if (Num > 0)
+	{
+		C = C / Num;
+		return (C - B.Position) * COHESION_FACTOR;
+	}
+
+	return glm::vec3(0.f);
 }
 
 glm::vec3 IBoidsController::Seperation(Blob& B)
 {
-	glm::vec3 S(0.f);
+	if (!Sep) return glm::vec3(0.f);
 
-	return S;
+	glm::vec3 S(0.f);
+	GLfloat Num = 0, Distance;
+	for (GLuint i = 0; i < Blobs.size(); i++)
+	{
+		if (B != Blobs[i])
+		{
+			Distance = glm::distance(B.Position, Blobs[i].Position);
+			if (Distance > 0 && Distance < SEPERATION_DIST)
+			{
+				S -= (Blobs[i].Position - B.Position) / Distance;
+				Num++;
+			}
+		}
+	}
+
+	if (Num > 0)
+	{
+		S = S / Num;
+		return S * SEPERATION_FACTOR;
+	}
+
+	return glm::vec3(0.f);
+}
+
+glm::vec3 IBoidsController::AvoidEdge(Blob& B)
+{
+	glm::vec3 E(0.f);
+	GLfloat Distance;
+	glm::vec3 Vec;
+
+	// Avoid +x
+	Vec = glm::vec3(RADIUS * 2, B.Position.y, B.Position.z) - B.Position;
+	Distance = glm::length(Vec);
+	if (Distance < NEIGHBOURHOOD)
+	{
+		E -= Vec / Distance;
+	}
+
+	// Avoid -x
+	Vec = glm::vec3(Resolution - RADIUS * 2 - 1, B.Position.y, B.Position.z) - B.Position;
+	Distance = glm::length(Vec);
+	if (Distance < NEIGHBOURHOOD)
+	{
+		E -= Vec / Distance;
+	}
+
+	// Avoid +y
+	Vec = glm::vec3(B.Position.x, RADIUS * 2, B.Position.z) - B.Position;
+	Distance = glm::length(Vec);
+	if (Distance < NEIGHBOURHOOD)
+	{
+		E -= Vec / Distance;
+	}
+
+	// Avoid -y
+	Vec = glm::vec3(B.Position.x, Resolution - RADIUS * 2 - 1, B.Position.z) - B.Position;
+	Distance = glm::length(Vec);
+	if (Distance < NEIGHBOURHOOD)
+	{
+		E -= Vec / Distance;
+	}
+
+	// Avoid +z
+	Vec = glm::vec3(B.Position.x, B.Position.y, RADIUS * 2) - B.Position;
+	Distance = glm::length(Vec);
+	if (Distance < NEIGHBOURHOOD)
+	{
+		E -= Vec / Distance;
+	}
+
+	// Avoid -z
+	Vec = glm::vec3(B.Position.x, B.Position.y, Resolution - RADIUS * 2 - 1) - B.Position;
+	Distance = glm::length(Vec);
+	if (Distance < NEIGHBOURHOOD)
+	{
+		E -= Vec / Distance;
+	}
+
+	return E * AVOID_EDGE_FACTOR;
 }

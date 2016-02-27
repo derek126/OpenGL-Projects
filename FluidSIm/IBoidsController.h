@@ -23,7 +23,7 @@ private:
 	// Structure to contain blob data
 	struct Blob
 	{
-		Blob(const glm::vec3& Velocity, const glm::vec3& GridPos, const GLfloat Radius) : Velocity(Velocity), Radius(Radius), Position(GridPos)
+		Blob(const glm::vec3& Velocity, const glm::vec3& GridPos, const GLfloat Radius) : Velocity(Velocity), Radius(Radius), Position(GridPos), Acceleration(0.f)
 		{
 			static GLuint id = 1;
 
@@ -42,7 +42,7 @@ private:
 		}
 
 		GLfloat Radius, RadiusSquared;
-		glm::vec3 Position, Velocity;
+		glm::vec3 Position, Velocity, Acceleration;
 		GLuint BID;
 	};
 
@@ -71,5 +71,8 @@ private:
 	glm::vec3 Alignment(Blob& B);
 	glm::vec3 Cohesion(Blob& B);
 	glm::vec3 Seperation(Blob& B);
+	glm::vec3 AvoidEdge(Blob& B);
+
+	GLboolean Ali, Coh, Sep;
 };
 

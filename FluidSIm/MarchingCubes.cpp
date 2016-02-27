@@ -347,8 +347,6 @@ void MarchingCubes::SetIsolevel(const GLfloat& Iso)
 // TODO : This needs some attention...
 void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<GLfloat>>>& Grid)
 {
-	Normals.clear();
-
 	GLfloat dx, dy, dz;
 	for (GLuint x = 2; x < Resolution - 3; x++)
 	{
@@ -378,16 +376,22 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 		GLfloat fy = pos.y - y;
 		GLfloat fz = pos.z - z;
 
-		glm::vec3 x0 = N[x][y][z] * (1.0f - fx) + N[x + 1][y][z] * fx;
-		glm::vec3 x1 = N[x][y][z + 1] * (1.0f - fx) + N[x + 1][y][z + 1] * fx;
+		if (pos.x < Resolution - 1 && pos.y < Resolution - 1 && pos.z < Resolution - 1)
+		{
+			glm::vec3 x0 = N[x][y][z] * (1.0f - fx) + N[x + 1][y][z] * fx;
+			glm::vec3 x1 = N[x][y][z + 1] * (1.0f - fx) + N[x + 1][y][z + 1] * fx;
 
-		glm::vec3 x2 = N[x][y + 1][z] * (1.0f - fx) + N[x + 1][y + 1][z] * fx;
-		glm::vec3 x3 = N[x][y + 1][z + 1] * (1.0f - fx) + N[x + 1][y + 1][z + 1] * fx;
+			glm::vec3 x2 = N[x][y + 1][z] * (1.0f - fx) + N[x + 1][y + 1][z] * fx;
+			glm::vec3 x3 = N[x][y + 1][z + 1] * (1.0f - fx) + N[x + 1][y + 1][z + 1] * fx;
 
-		glm::vec3 z0 = x0 * (1.0f - fz) + x1 * fz;
-		glm::vec3 z1 = x2 * (1.0f - fz) + x3 * fz;
+			glm::vec3 z0 = x0 * (1.0f - fz) + x1 * fz;
+			glm::vec3 z1 = x2 * (1.0f - fz) + x3 * fz;
 
-		return z0 * (1.0f - fy) + z1 * fy;
+			return z0 * (1.0f - fy) + z1 * fy;
+		}
+
+		return glm::vec3(pos.x, pos.y, pos.z);
+
 	};
 
 	for (GLuint i = 0; i < Vertices.size(); i++)
@@ -464,10 +468,10 @@ GLint MarchingCubes::MarchCube(const std::vector<std::vector<std::vector<GLfloat
 		Indices.push_back(idx + 2);
 		Vertices.push_back(NewVerts[Vert]);
 
-		glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
-		Normals.push_back(Normal);
-		Normals.push_back(Normal);
-		Normals.push_back(Normal);
+		//glm::vec3 Normal = glm::normalize(glm::cross((Vertices[idx] - Vertices[idx + 1]), (Vertices[idx] - Vertices[idx + 2])));
+		//Normals.push_back(Normal);
+		//Normals.push_back(Normal);
+		//Normals.push_back(Normal);
 	}
 
 	return EdgeTable[Index];
