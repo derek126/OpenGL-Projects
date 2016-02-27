@@ -25,11 +25,25 @@ private:
 	{
 		Blob(const glm::vec3& Velocity, const glm::vec3& GridPos, const GLfloat Radius) : Velocity(Velocity), Radius(Radius), Position(GridPos)
 		{
+			static GLuint id = 1;
+
+			BID = id++;
 			RadiusSquared = glm::pow(Radius, 2);
 		};
 
+		GLboolean Blob::operator==(const Blob &Other) const
+		{
+			return this->BID == Other.BID;
+		}
+
+		GLboolean Blob::operator!=(const Blob &Other) const
+		{
+			return !(*this == Other);
+		}
+
 		GLfloat Radius, RadiusSquared;
 		glm::vec3 Position, Velocity;
+		GLuint BID;
 	};
 
 	// Functions for computing the mesh
@@ -41,7 +55,7 @@ private:
 	void InitBoids();
 
 	// State
-	const GLuint Resolution = 32;
+	const GLuint Resolution = 64;
 	std::vector<std::vector<std::vector<GLfloat>>> Grid;
 	std::vector<Blob> Blobs;
 
@@ -51,5 +65,11 @@ private:
 
 	MarchingCubes* MeshBuilder; // Computes the mesh, retrieve vertices, indices and normals from here
 	std::map<std::string, GLuint> Buffers; // Buffer storage
+
+	// Boid functions
+	void UpdateBoids(const GLfloat& dt);
+	glm::vec3 Alignment(Blob& B);
+	glm::vec3 Cohesion(Blob& B);
+	glm::vec3 Seperation(Blob& B);
 };
 
