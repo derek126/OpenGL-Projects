@@ -13,15 +13,16 @@
 
 #define NEIGHBOURHOOD RADIUS * 8.f
 #define SEPERATION_DIST NEIGHBOURHOOD * 2.f
-#define AVOID_EDGE_FACTOR 128.f // Best not to change this or they may go out of bounds
-#define ALIGNMENT_FACTOR 2.5f
-#define COHESION_FACTOR 1.f
-#define SEPERATION_FACTOR 1.5f
+#define AVOID_EDGE_FACTOR 64.f // Best not to change this or they may go out of bounds
+#define ALIGNMENT_FACTOR 4.f
+#define COHESION_FACTOR 2.f
+#define SEPERATION_FACTOR 32.f
 
 IBoidsController::IBoidsController() :
-	Ali(GL_FALSE), 
-	Coh(GL_FALSE), 
-	Sep(GL_FALSE)
+	bAli(GL_FALSE), 
+	bCoh(GL_FALSE), 
+	bSep(GL_FALSE),
+	bCubes(GL_FALSE)
 {
 	// Create the mesh builder
 	MeshBuilder = new MarchingCubes(Resolution);
@@ -68,8 +69,8 @@ void IBoidsController::Initialize()
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(ScreenX, ScreenY);
 
-	Camera->SetPosition(glm::vec3(0.f, 90.f, 90.0f));
-	Camera->SetFocus(glm::vec3(Resolution / 2.f, -10.f, 0.f));
+	Camera->SetPosition(glm::vec3(0.f, 128.f, 128.0f));
+	Camera->SetFocus(glm::vec3(Resolution / 2.f, 10.f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
 
@@ -93,9 +94,12 @@ void IBoidsController::Update(const GLfloat& dt)
 {
 	UpdateBoids(dt);
 
-	MeshBuilder->ClearMesh(); // Clear previous mesh
-	ComputeVoxels(); // Create new mesh
-	MeshBuilder->CalculateNormals(Grid); // Calculate smoothed normals
+	if (!bCubes)
+	{
+		MeshBuilder->ClearMesh(); // Clear previous mesh
+		ComputeVoxels(); // Create new mesh
+		MeshBuilder->CalculateNormals(Grid); // Calculate smoothed normals
+	}
 }
 
 void IBoidsController::AddNeighbours(const GLuint& gx, const GLuint& gy, const GLuint& gz)
@@ -210,22 +214,35 @@ GLfloat IBoidsController::ComputeAtGrid(const GLuint& ix, const GLuint& iy, cons
 
 void IBoidsController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
 {
+	if (Key == GLFW_KEY_DOWN && Action == GLFW_RELEASE)
+	{
+		bCubes = !bCubes;
+		std::cout << "Cubes: " << (bCubes ? "On" : "Off") << std::endl;
+
+		if (!bCubes)
+		{
+			// Reset blob transform
+			glm::mat4 Model; // Identity
+			RESOURCEMANAGER.GetShader("Boids").SetMatrix4("Model", Model, true);
+		}
+	}
+
 	if (Key == GLFW_KEY_LEFT && Action == GLFW_RELEASE)
 	{
-		Ali = !Ali;
-		std::cout << "Alignment: " << (Ali ? "On" : "Off") << std::endl;
+		bAli = !bAli;
+		std::cout << "Alignment: " << (bAli ? "On" : "Off") << std::endl;
 	}
 
 	if (Key == GLFW_KEY_UP && Action == GLFW_RELEASE)
 	{
-		Coh = !Coh;
-		std::cout << "Cohesion: " << (Coh ? "On" : "Off") << std::endl;
+		bCoh = !bCoh;
+		std::cout << "Cohesion: " << (bCoh ? "On" : "Off") << std::endl;
 	}
 
 	if (Key == GLFW_KEY_RIGHT && Action == GLFW_RELEASE)
 	{
-		Sep = !Sep;
-		std::cout << "Sepration: " << (Sep ? "On" : "Off") << std::endl;
+		bSep = !bSep;
+		std::cout << "Sepration: " << (bSep ? "On" : "Off") << std::endl;
 	}
 
 	if (Key == GLFW_KEY_SPACE && Action == GLFW_RELEASE)
@@ -255,29 +272,43 @@ void IBoidsController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 	}
 }
 
+#include <Cube.h>
 void IBoidsController::Render()
 {
-	// Render blobs
-	glBindVertexArray(Buffers["VAO"]);
+	// Render boids
+	if (!bCubes)
+	{
+		glBindVertexArray(Buffers["VAO"]);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Buffers["EBO"]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, MeshBuilder->GetIndices().size() * sizeof(GLuint), MeshBuilder->GetIndices().data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Buffers["EBO"]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, MeshBuilder->GetIndices().size() * sizeof(GLuint), MeshBuilder->GetIndices().data(), GL_DYNAMIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Vertices"]);
-	glBufferData(GL_ARRAY_BUFFER, MeshBuilder->GetVertices().size() * 3 * sizeof(GLfloat), MeshBuilder->GetVertices().data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, Buffers["Vertices"]);
+		glBufferData(GL_ARRAY_BUFFER, MeshBuilder->GetVertices().size() * 3 * sizeof(GLfloat), MeshBuilder->GetVertices().data(), GL_DYNAMIC_DRAW);
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, Buffers["Normals"]);
-	glBufferData(GL_ARRAY_BUFFER, MeshBuilder->GetNormals().size() * 3 * sizeof(GLfloat), MeshBuilder->GetNormals().data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, Buffers["Normals"]);
+		glBufferData(GL_ARRAY_BUFFER, MeshBuilder->GetNormals().size() * 3 * sizeof(GLfloat), MeshBuilder->GetNormals().data(), GL_DYNAMIC_DRAW);
 
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-	RESOURCEMANAGER.GetShader("Boids").SetVector3f("CameraPosition", Camera->GetPosition(), true);
-	glDrawElements(GL_TRIANGLES, MeshBuilder->GetIndices().size(), GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
+		RESOURCEMANAGER.GetShader("Boids").SetVector3f("CameraPosition", Camera->GetPosition(), true);
+		glDrawElements(GL_TRIANGLES, MeshBuilder->GetIndices().size(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
+	else
+	{
+		Cube cube;
+		for (GLuint i = 0; i < Blobs.size(); i++)
+		{
+			cube.SetTranslation(Blobs[i].Position);
+			cube.SetShader("Boids");
+			cube.Draw();
+		}
+	}
 }
 
 void IBoidsController::InitBoids()
@@ -307,9 +338,7 @@ void IBoidsController::InitBoids()
 	//Blobs.push_back(Blob(glm::vec3(10.f, 0.f, 0.f), glm::vec3(Resolution / 2.f), RADIUS));
 
 	// Set blob transform
-	glm::mat4 Model;
-	//Model = glm::translate(Model, glm::vec3(0.f, -20.f, 0.f));
-	Model = glm::scale(Model, glm::vec3(0.5f, 0.5f, 0.5f));
+	glm::mat4 Model; // Identity
 	RESOURCEMANAGER.GetShader("Boids").SetMatrix4("Model", Model, true);
 }
 
@@ -335,7 +364,7 @@ void IBoidsController::UpdateBoids(const GLfloat& dt)
 
 glm::vec3 IBoidsController::Alignment(Blob& B)
 {
-	if (!Ali) return glm::vec3(0.f);
+	if (!bAli) return glm::vec3(0.f);
 
 	glm::vec3 A(0.f);
 	GLfloat Num = 0, Distance;
@@ -346,7 +375,7 @@ glm::vec3 IBoidsController::Alignment(Blob& B)
 			Distance = glm::distance(B.Position, Blobs[i].Position);
 			if (Distance > 0 && Distance < NEIGHBOURHOOD)
 			{
-				A += Blobs[i].Velocity / Distance;
+				A += Blobs[i].Velocity;
 				Num++;
 			}
 		}
@@ -363,7 +392,7 @@ glm::vec3 IBoidsController::Alignment(Blob& B)
 
 glm::vec3 IBoidsController::Cohesion(Blob& B)
 {
-	if (!Coh) return glm::vec3(0.f);
+	if (!bCoh) return glm::vec3(0.f);
 
 	glm::vec3 C(0.f);
 	GLfloat Num = 0, Distance;
@@ -391,7 +420,7 @@ glm::vec3 IBoidsController::Cohesion(Blob& B)
 
 glm::vec3 IBoidsController::Seperation(Blob& B)
 {
-	if (!Sep) return glm::vec3(0.f);
+	if (!bSep) return glm::vec3(0.f);
 
 	glm::vec3 S(0.f);
 	GLfloat Num = 0, Distance;

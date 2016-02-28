@@ -73,6 +73,7 @@ private:
 	glm::vec3 Seperation(Blob& B);
 	glm::vec3 AvoidEdge(Blob& B);
 
-	GLboolean Ali, Coh, Sep;
+	// Booleans to set up functionality at run time with keyboard input
+	GLboolean bAli, bCoh, bSep, bCubes;
 };
 
