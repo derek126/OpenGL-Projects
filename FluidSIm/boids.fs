@@ -16,21 +16,36 @@ layout (std140) uniform SceneData
 	vec3 LightColor;
 };
 
-uniform vec3 Color;
 uniform vec3 CameraPosition;
+
+// Red rubber
+vec3 AmbientColor = vec3(0.5f, 0.f, 0.f);
+vec3 DiffuseColor = vec3(0.5f, 0.4f, 0.4f);
+vec3 SpecularColor = vec3(0.7f, 0.04f, 0.04f);
+float Shininess = 32;
+
+// Red Plastic
+//vec3 AmbientColor = vec3(0.1745f, 0.01175f, 0.01175f);
+//vec3 DiffuseColor = vec3(0.61424f, 0.04136f, 0.04136f);
+//vec3 SpecularColor = vec3(0.7f, 0.6f, 0.6f);
+//float Shininess = 128;
+
+// Ruby
+//vec3 AmbientColor = vec3(0.f, 0.f, 0.f);
+//vec3 DiffuseColor = vec3(0.5f, 0.f, 0.f);
+//vec3 SpecularColor = vec3(0.727811f, 0.626959f, 0.626959f);
+//float Shininess = 256;
 
 void main()
 {
 	vec3 LightDir = vec3(View * vec4(LightDirection, 0.f));
 
-	float AmbientStrength = 0.1f;
-    vec3 Ambient = AmbientStrength * LightColor;
-	vec3 Diffuse =  max(dot(normalize(fs_in.Normal), LightDir), 0.0) * LightColor;
+    vec3 Ambient = LightColor * AmbientColor;
 
-	float SpecularStrength = 1.f;
-	float Spec = pow(max(dot(normalize(fs_in.FragPos), reflect(LightDir, normalize(fs_in.Normal))), 0.0), 128);
-	vec3 Specular = SpecularStrength * Spec * LightColor; 
+	vec3 Diffuse =  max(dot(normalize(fs_in.Normal), LightDir), 0.0) * LightColor * DiffuseColor;
 
-    vec3 Result = (Ambient + Diffuse + Specular) * Color;
-    FragColor = vec4(Result, 1.0f);
+	float Spec = pow(max(dot(normalize(fs_in.FragPos), reflect(LightDir, normalize(fs_in.Normal))), 0.0), Shininess);
+	vec3 Specular =  Spec * LightColor * SpecularColor; 
+
+    FragColor = vec4((Ambient + Diffuse + Specular), 1.0f);
 } 

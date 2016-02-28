@@ -13,7 +13,7 @@
 
 #define NEIGHBOURHOOD RADIUS * 8.f
 #define SEPERATION_DIST NEIGHBOURHOOD * 2.f
-#define AVOID_EDGE_FACTOR 64.f // Best not to change this or they may go out of bounds
+#define AVOID_EDGE_FACTOR 128.f // Best not to change this or they may go out of bounds
 #define ALIGNMENT_FACTOR 4.f
 #define COHESION_FACTOR 2.f
 #define SEPERATION_FACTOR 32.f
@@ -327,7 +327,7 @@ void IBoidsController::InitBoids()
 
 	// Initialize the shader to be used for the blobs
 	RESOURCEMANAGER.LoadShader("boids.vs", "boids.fs", nullptr, "Boids");
-	RESOURCEMANAGER.GetShader("Boids").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
+	//RESOURCEMANAGER.GetShader("Boids").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
 
 	// Add blobs
 	GLfloat R = static_cast<GLfloat>(Resolution);
