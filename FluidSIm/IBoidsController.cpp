@@ -314,7 +314,6 @@ void IBoidsController::Render()
 		glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-		RESOURCEMANAGER.GetShader("Boids").SetVector3f("CameraPosition", Camera->GetPosition(), true);
 		glDrawElements(GL_TRIANGLES, MeshBuilder->GetIndices().size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
@@ -346,7 +345,7 @@ void IBoidsController::InitBoids()
 
 	// Initialize the shader to be used for the blobs
 	RESOURCEMANAGER.LoadShader("boids.vs", "boids.fs", nullptr, "Boids");
-	//RESOURCEMANAGER.GetShader("Boids").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
+	RESOURCEMANAGER.GetShader("Boids").SetVector3f("CameraPosition", Camera->GetPosition(), true);
 
 	// Add blobs
 	GLfloat R = static_cast<GLfloat>(Resolution);
