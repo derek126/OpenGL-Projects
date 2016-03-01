@@ -82,6 +82,12 @@ glm::mat4 Actor::GetModelMatrix()
 	return ModelMatrix;
 }
 
+void Actor::SetModel(const glm::mat4& Model)
+{
+	bModelChanged = GL_FALSE;
+	ModelMatrix = Model;
+}
+
 void Actor::ResetTransform()
 {
 	TranslationMatrix = glm::mat4(1.f);

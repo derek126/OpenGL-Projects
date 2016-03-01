@@ -33,6 +33,9 @@ public:
 	virtual void SetRotation(const glm::mat4& Rotation);
 	virtual void SetScale(const glm::mat4& Scale);
 
+	// Set a custom model matrix
+	virtual void SetModel(const glm::mat4& Model);
+
 	// Reset the objects transform back to origin and default scale and rotation
 	virtual void ResetTransform();
 
