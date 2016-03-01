@@ -1,9 +1,8 @@
 #pragma once
 
 #include "GameController.h"
+#include <Sphere.h>
 
-/*
-*/
 class LagrangianController : public GameController
 {
 
@@ -18,4 +17,12 @@ public:
 	virtual void ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode) override;
 	virtual void ProcessMouseMove(const GLdouble& dX, const GLdouble& dY) override;
 	virtual void Render() override;
+
+private:
+
+	void InitMasses();
+
+	Sphere* M1; // The gravitational body (fixed)
+	Sphere* M2;
+
 };

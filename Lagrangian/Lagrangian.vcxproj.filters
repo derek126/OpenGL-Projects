@@ -7,4 +7,8 @@
   <ItemGroup>
     <ClInclude Include="LagrangianController.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="phong.vs" />
+    <None Include="phong.fs" />
+  </ItemGroup>
 </Project>

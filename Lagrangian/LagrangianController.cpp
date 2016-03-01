@@ -11,7 +11,8 @@ LagrangianController::LagrangianController()
 
 LagrangianController::~LagrangianController()
 {
-
+	if (M1) delete M1;
+	if (M2) delete M2;
 }
 
 void LagrangianController::Initialize()
@@ -31,7 +32,7 @@ void LagrangianController::Initialize()
 	glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
 	// Set the directional light direction and color
-	RESOURCEMANAGER.SetLightDirection(glm::vec3(1.f, 1.f, 1.f));
+	RESOURCEMANAGER.SetLightDirection(-glm::vec3(45.f, 10.f, 45.0f));
 	RESOURCEMANAGER.SetLightColor(glm::vec3(1.f, 1.f, 1.f));
 
 	// OpenGL configuration
@@ -39,6 +40,8 @@ void LagrangianController::Initialize()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
+
+	InitMasses();
 }
 
 void LagrangianController::Update(const GLfloat& dt)
@@ -73,5 +76,21 @@ void LagrangianController::ProcessMouseMove(const GLdouble& dX, const GLdouble& 
 
 void LagrangianController::Render()
 {
+	RESOURCEMANAGER.GetShader("Masses").SetVector3f("Color", glm::vec3(1.0f, 0.5f, 0.2f), true);
+	M1->Draw();
 
+	RESOURCEMANAGER.GetShader("Masses").SetVector3f("Color", glm::vec3(0.f, 0.75f, 1.f), true);
+	M2->Draw();
+}
+
+void LagrangianController::InitMasses()
+{
+	M1 = new Sphere(16.f, 128.f, 128.f);
+	M2 = new Sphere(4.f, 128.f, 128.f);
+
+	RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Masses");
+	M1->SetShader("Masses");
+	M2->SetShader("Masses");
+
+	M2->SetTranslation(glm::vec3(0.f, 16.f, 32.f));
 }

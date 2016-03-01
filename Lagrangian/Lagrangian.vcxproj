@@ -127,6 +127,10 @@
   <ItemGroup>
     <ClInclude Include="LagrangianController.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="phong.fs" />
+    <None Include="phong.vs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
