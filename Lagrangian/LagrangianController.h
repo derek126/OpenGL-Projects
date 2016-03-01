@@ -23,8 +23,10 @@ private:
 	void InitMasses();
 
 	Sphere* M1; // The gravitational body (fixed)
-	Sphere* M2;
+	Sphere* M2; // Moveable
 
 	glm::mat4 Model; // The model matrix of the moveable object
 
+	GLfloat rPos, rAcc, rVel;
+	GLfloat tPos, tAcc, tVel;
 };
