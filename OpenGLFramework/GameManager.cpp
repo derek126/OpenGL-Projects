@@ -38,7 +38,7 @@ GameManager& GameManager::GetInstance()
 	return Instance;
 }
 
-void GameManager::SetTargetFrametime(const GLuint& Rate)
+void GameManager::SetTargetFrametime(const GLint& Rate)
 {
 	TargetFrametime = 1.f / static_cast<GLfloat>(Rate);
 }
@@ -104,12 +104,22 @@ void GameManager::Run()
 			frameTime += 1.0;
 		}
 
-		accumulator += deltaTime;
-		while (accumulator >= TargetFrametime)
+		if (TargetFrametime > 0)
+		{
+			accumulator += deltaTime;
+			while (accumulator >= TargetFrametime)
+			{
+				// Check for events, process any input, and then update the controller
+				glfwPollEvents();
+				Controller->Update(static_cast<GLfloat>(TargetFrametime));
+				accumulator -= TargetFrametime;
+			}
+		}
+		else
 		{
 			// Check for events, process any input, and then update the controller
 			glfwPollEvents();
-			Controller->Update(static_cast<GLfloat>(TargetFrametime));
+			Controller->Update(static_cast<GLfloat>(deltaTime));
 			accumulator -= TargetFrametime;
 		}
 

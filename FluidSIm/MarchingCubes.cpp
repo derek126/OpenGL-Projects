@@ -366,37 +366,36 @@ void MarchingCubes::CalculateNormals(const std::vector<std::vector<std::vector<G
 		}
 	}
 
-	static auto TriLERPNormal = [this, Grid](const glm::vec3& pos)
-	{
-		GLuint x = static_cast<GLuint>(pos.x);
-		GLuint y = static_cast<GLuint>(pos.y);
-		GLuint z = static_cast<GLuint>(pos.z);
-
-		GLfloat fx = pos.x - x;
-		GLfloat fy = pos.y - y;
-		GLfloat fz = pos.z - z;
-
-		if (pos.x < Resolution - 1 && pos.y < Resolution - 1 && pos.z < Resolution - 1)
-		{
-			glm::vec3 x0 = N[x][y][z] * (1.0f - fx) + N[x + 1][y][z] * fx;
-			glm::vec3 x1 = N[x][y][z + 1] * (1.0f - fx) + N[x + 1][y][z + 1] * fx;
-
-			glm::vec3 x2 = N[x][y + 1][z] * (1.0f - fx) + N[x + 1][y + 1][z] * fx;
-			glm::vec3 x3 = N[x][y + 1][z + 1] * (1.0f - fx) + N[x + 1][y + 1][z + 1] * fx;
-
-			glm::vec3 z0 = x0 * (1.0f - fz) + x1 * fz;
-			glm::vec3 z1 = x2 * (1.0f - fz) + x3 * fz;
-
-			return z0 * (1.0f - fy) + z1 * fy;
-		}
-
-		return glm::vec3(pos.x, pos.y, pos.z);
-
-	};
-
 	for (GLuint i = 0; i < Vertices.size(); i++)
 		Normals.push_back(-TriLERPNormal(Vertices[i]));
 }
+
+glm::vec3 MarchingCubes::TriLERPNormal(const glm::vec3& pos) const
+{
+	GLuint x = static_cast<GLuint>(pos.x);
+	GLuint y = static_cast<GLuint>(pos.y);
+	GLuint z = static_cast<GLuint>(pos.z);
+
+	GLfloat fx = pos.x - x;
+	GLfloat fy = pos.y - y;
+	GLfloat fz = pos.z - z;
+
+	if (pos.x < Resolution - 1 && pos.y < Resolution - 1 && pos.z < Resolution - 1)
+	{
+		glm::vec3 x0 = N[x][y][z] * (1.0f - fx) + N[x + 1][y][z] * fx;
+		glm::vec3 x1 = N[x][y][z + 1] * (1.0f - fx) + N[x + 1][y][z + 1] * fx;
+
+		glm::vec3 x2 = N[x][y + 1][z] * (1.0f - fx) + N[x + 1][y + 1][z] * fx;
+		glm::vec3 x3 = N[x][y + 1][z + 1] * (1.0f - fx) + N[x + 1][y + 1][z + 1] * fx;
+
+		glm::vec3 z0 = x0 * (1.0f - fz) + x1 * fz;
+		glm::vec3 z1 = x2 * (1.0f - fz) + x3 * fz;
+
+		return z0 * (1.0f - fy) + z1 * fy;
+	}
+
+	return glm::vec3(pos.x, pos.y, pos.z);
+};
 
 GLfloat MarchingCubes::GetOffset(const GLfloat& v1, const GLfloat& v2) const
 {

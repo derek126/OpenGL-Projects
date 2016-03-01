@@ -1,5 +1,6 @@
 #include "IBoidsController.h"
 #include <ResourceManager.h>
+#include <Cube.h>
 
 #include <iostream>
 #include <glm\gtc\random.hpp>
@@ -8,7 +9,7 @@
 #define ScreenY 1080
 
 #define MAX_SPEED 16.f
-#define RADIUS 3.f
+#define RADIUS 3.5f
 #define NUM_BLOBS 32
 
 #define NEIGHBOURHOOD RADIUS * 8.f
@@ -64,7 +65,7 @@ IBoidsController::~IBoidsController()
 void IBoidsController::Initialize()
 {
 	GameController::Initialize();
-	GAMEMANAGER.SetTargetFrametime(25);
+	GAMEMANAGER.SetTargetFrametime(-1); // Do not need a fixed timestep
 
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(ScreenX, ScreenY);
@@ -92,6 +93,14 @@ void IBoidsController::Initialize()
 
 void IBoidsController::Update(const GLfloat& dt)
 {
+	// Wait for the scene to fully load
+	static GLfloat accum = 0;
+	accum += dt;
+	if (accum < 2.5f)
+	{
+		return;
+	}
+
 	UpdateBoids(dt);
 
 	if (!bCubes)
@@ -214,35 +223,46 @@ GLfloat IBoidsController::ComputeAtGrid(const GLuint& ix, const GLuint& iy, cons
 
 void IBoidsController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
 {
+	static GLboolean bSettingChanged = GL_FALSE;
+
 	if (Key == GLFW_KEY_DOWN && Action == GLFW_RELEASE)
 	{
 		bCubes = !bCubes;
-		std::cout << "Cubes: " << (bCubes ? "On" : "Off") << std::endl;
-
 		if (!bCubes)
 		{
 			// Reset blob transform
 			glm::mat4 Model; // Identity
 			RESOURCEMANAGER.GetShader("Boids").SetMatrix4("Model", Model, true);
 		}
+		bSettingChanged = GL_TRUE;
 	}
 
 	if (Key == GLFW_KEY_LEFT && Action == GLFW_RELEASE)
 	{
 		bAli = !bAli;
-		std::cout << "Alignment: " << (bAli ? "On" : "Off") << std::endl;
+		bSettingChanged = GL_TRUE;
 	}
 
 	if (Key == GLFW_KEY_UP && Action == GLFW_RELEASE)
 	{
 		bCoh = !bCoh;
-		std::cout << "Cohesion: " << (bCoh ? "On" : "Off") << std::endl;
+		bSettingChanged = GL_TRUE;
 	}
 
 	if (Key == GLFW_KEY_RIGHT && Action == GLFW_RELEASE)
 	{
 		bSep = !bSep;
+		bSettingChanged = GL_TRUE;
+	}
+
+	if (bSettingChanged)
+	{
+		system("cls");
+		std::cout << "Alignment: " << (bAli ? "On" : "Off") << std::endl;
+		std::cout << "Cohesion: " << (bCoh ? "On" : "Off") << std::endl;
 		std::cout << "Sepration: " << (bSep ? "On" : "Off") << std::endl;
+		std::cout << "Cubes: " << (bCubes ? "On" : "Off") << std::endl;
+		bSettingChanged = GL_FALSE;
 	}
 
 	if (Key == GLFW_KEY_SPACE && Action == GLFW_RELEASE)
@@ -272,7 +292,6 @@ void IBoidsController::ProcessMouseMove(const GLdouble& dX, const GLdouble& dY)
 	}
 }
 
-#include <Cube.h>
 void IBoidsController::Render()
 {
 	// Render boids
@@ -344,9 +363,15 @@ void IBoidsController::InitBoids()
 
 void IBoidsController::UpdateBoids(const GLfloat& dt)
 {
+	// Update acceleration based on current positions
 	for (GLuint i = 0; i < Blobs.size(); i++)
 	{
 		Blobs[i].Acceleration += (AvoidEdge(Blobs[i]) + Alignment(Blobs[i]) + Cohesion(Blobs[i]) + Seperation(Blobs[i]));
+	}
+
+	// Update velocity and position
+	for (GLuint i = 0; i < Blobs.size(); i++)
+	{
 		Blobs[i].Velocity += Blobs[i].Acceleration * dt;
 
 		// Maintain a velocity between the preset MAX

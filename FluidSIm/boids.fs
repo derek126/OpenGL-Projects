@@ -18,11 +18,16 @@ layout (std140) uniform SceneData
 
 uniform vec3 CameraPosition;
 
-// Red rubber
-vec3 AmbientColor = vec3(0.5f, 0.f, 0.f);
-vec3 DiffuseColor = vec3(0.5f, 0.4f, 0.4f);
-vec3 SpecularColor = vec3(0.7f, 0.04f, 0.04f);
+vec3 AmbientColor = vec3(1.f, 0.15f, 0.f);
+vec3 DiffuseColor = vec3(1.f, 0.27f, 0.f);
+vec3 SpecularColor = vec3(1.f, 0.39f, 0.28f);
 float Shininess = 32;
+
+// Red rubber
+//vec3 AmbientColor = vec3(0.5f, 0.f, 0.f);
+//vec3 DiffuseColor = vec3(0.5f, 0.4f, 0.4f);
+//vec3 SpecularColor = vec3(0.7f, 0.04f, 0.04f);
+//float Shininess = 32;
 
 // Red Plastic
 //vec3 AmbientColor = vec3(0.1745f, 0.01175f, 0.01175f);

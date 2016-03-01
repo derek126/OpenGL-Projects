@@ -31,8 +31,8 @@ public:
 	// Create the window and does other various setup
 	GLboolean Initialize(class GameController* NewController);
 
-	// Sets the target framerate
-	void SetTargetFrametime(const GLuint& Rate);
+	// Sets the target framerate - value of < 0 means variable time step
+	void SetTargetFrametime(const GLint& Rate);
 
 	// Sets clear color of the window
 	void SetClearColor(const glm::vec4& Color);

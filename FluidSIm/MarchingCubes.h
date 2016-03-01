@@ -26,6 +26,7 @@ private:
 
 	GLfloat GetOffset(const GLfloat& v1, const GLfloat& v2) const;
 	void MakeCube(const std::vector<std::vector<std::vector<GLfloat>>>& Grid, const GLuint& x, const GLuint& y, const GLuint& z);
+	glm::vec3 TriLERPNormal(const glm::vec3& pos) const;
 
 	// Tables
 	static std::array<std::array<GLint, 3>, 8> VertexOffset;
