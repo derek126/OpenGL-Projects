@@ -159,3 +159,18 @@ GLfloat Sphere::GetRadius() const
 {
 	return Radius;
 }
+
+std::vector<glm::vec3> Sphere::GetVertices() const
+{
+	return Vertices;
+}
+
+std::vector<GLuint> Sphere::GetIndices() const
+{
+	return Indices;
+}
+
+std::vector<glm::vec3> Sphere::GetNormals() const
+{
+	return Normals;
+}

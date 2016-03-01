@@ -16,6 +16,9 @@ public:
 	virtual void Draw() override;
 
 	GLfloat GetRadius() const;
+	std::vector<glm::vec3> GetVertices() const;
+	std::vector<GLuint> GetIndices() const;
+	std::vector<glm::vec3> GetNormals() const;
 
 	// These are replaced by radius
 	virtual void Scale(const glm::vec3& ScaleAmnt) override {};
@@ -32,6 +35,6 @@ protected:
 
 	std::vector<GLuint> Indices;
 	std::vector<glm::vec3> Vertices, Normals;
-	std::vector<glm::vec2> UVs;
+	//std::vector<glm::vec2> UVs;
 };
 
