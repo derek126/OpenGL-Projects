@@ -22,7 +22,7 @@ public:
 	virtual void SetScale(const glm::vec3& ScaleAmnt) override {};
 	virtual void SetScale(const glm::mat4& Scale) override {}
 
-private:
+protected:
 
 	void CreateSphere();
 
