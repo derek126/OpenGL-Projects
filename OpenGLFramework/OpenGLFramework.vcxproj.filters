@@ -33,6 +33,9 @@
     <ClCompile Include="Texture3D.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>SceneObjects\Primitives</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h" />
@@ -66,6 +69,9 @@
     </ClInclude>
     <ClInclude Include="Texture3D.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>SceneObjects\Primitives</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -19,22 +19,22 @@ public:
 	glm::vec3 GetPosition() const;
 
 	// Transform functions that add to the current transform
-	void Translate(const glm::vec3& Translation);
-	void Rotate(const GLfloat& Deg, const glm::vec3& RotationAxis);
-	void Scale(const glm::vec3& ScaleAmnt);
+	virtual void Translate(const glm::vec3& Translation);
+	virtual void Rotate(const GLfloat& Deg, const glm::vec3& RotationAxis);
+	virtual void Scale(const glm::vec3& ScaleAmnt);
 
 	// Transform functions that reset the current transform
-	void SetTranslation(const glm::vec3& Translation);
-	void SetRotation(const GLfloat& Deg, const glm::vec3& RotationAxis);
-	void SetScale(const glm::vec3& ScaleAmnt);
+	virtual void SetTranslation(const glm::vec3& Translation);
+	virtual void SetRotation(const GLfloat& Deg, const glm::vec3& RotationAxis);
+	virtual void SetScale(const glm::vec3& ScaleAmnt);
 
 	// Transform functions that reset the current transform with a new matrix
-	void SetTranslation(const glm::mat4& Translation);
-	void SetRotation(const glm::mat4& Rotation);
-	void SetScale(const glm::mat4& Scale);
+	virtual void SetTranslation(const glm::mat4& Translation);
+	virtual void SetRotation(const glm::mat4& Rotation);
+	virtual void SetScale(const glm::mat4& Scale);
 
 	// Reset the objects transform back to origin and default scale and rotation
-	void ResetTransform();
+	virtual void ResetTransform();
 
 protected:
 
