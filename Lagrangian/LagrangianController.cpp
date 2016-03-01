@@ -23,7 +23,7 @@ void LagrangianController::Initialize()
 	// Increase screen dimensions and then set the camera location
 	SetScreenDimensions(ScreenX, ScreenY);
 
-	Camera->SetPosition(glm::vec3(45.f, 10.f, 45.0f));
+	Camera->SetPosition(glm::vec3(45.f, 10.f, 64.0f));
 	Camera->SetFocus(glm::vec3(0.5f, 0.5f, 0.f));
 	Camera->SetWorldUp(glm::vec3(0.f, 1.f, 0.f));
 	Camera->UpdateView();
@@ -46,7 +46,12 @@ void LagrangianController::Initialize()
 
 void LagrangianController::Update(const GLfloat& dt)
 {
+	static GLfloat Rot = 0.f;
+	Rot += 2.f * dt;
 
+	Model = glm::rotate(glm::mat4(), Rot, glm::vec3(0.f, -1.f, -1.f));
+	Model = glm::translate(Model, glm::vec3(32.f, 0.f, 0.f));
+	M2->SetModel(Model);
 }
 
 void LagrangianController::ProcessInput(const GLint& Key, const GLint& Action, const GLint& Mode)
@@ -91,6 +96,4 @@ void LagrangianController::InitMasses()
 	RESOURCEMANAGER.LoadShader("phong.vs", "phong.fs", nullptr, "Masses");
 	M1->SetShader("Masses");
 	M2->SetShader("Masses");
-
-	M2->SetTranslation(glm::vec3(0.f, 16.f, 32.f));
 }

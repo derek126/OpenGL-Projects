@@ -25,4 +25,6 @@ private:
 	Sphere* M1; // The gravitational body (fixed)
 	Sphere* M2;
 
+	glm::mat4 Model; // The model matrix of the moveable object
+
 };
