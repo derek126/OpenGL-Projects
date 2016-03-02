@@ -2,6 +2,9 @@
 
 #include "GameController.h"
 #include <Sphere.h>
+#include <array>
+#include <map>
+#include <string>
 
 class LagrangianController : public GameController
 {
@@ -22,11 +25,9 @@ private:
 
 	void InitMasses();
 
-	Sphere* M1; // The gravitational body (fixed)
-	Sphere* M2; // Moveable
+	Sphere* Planet; // The gravitational body (fixed)
+	std::vector<Sphere*> Moons; // Moveable
 
-	glm::mat4 Model; // The model matrix of the moveable object
-
-	GLfloat rPos, rAcc, rVel;
-	GLfloat tPos, tAcc, tVel;
+	std::vector<std::map<std::string, GLfloat>> Radial;
+	std::vector<std::map<std::string, GLfloat>> Angular;
 };
