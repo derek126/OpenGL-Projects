@@ -30,4 +30,5 @@ private:
 
 	std::vector<std::map<std::string, GLfloat>> Radial;
 	std::vector<std::map<std::string, GLfloat>> Angular;
+	std::vector<glm::vec3> Axis;
 };

@@ -2,8 +2,9 @@
 #include "ResourceManager.h"
 
 #include <array>
-#include <iostream>
 #include <cmath>
+#include <glm\gtc\random.hpp>
+#include <glm\gtx\string_cast.hpp>
 
 #define ScreenX 1920
 #define ScreenY 1080
@@ -36,6 +37,12 @@ LagrangianController::LagrangianController()
 	Moons.resize(NUM_BODIES);
 	Radial.resize(NUM_BODIES);
 	Angular.resize(NUM_BODIES);
+	Axis.resize(NUM_BODIES);
+
+	for (GLuint i = 0; i < NUM_BODIES; i++)
+	{
+		Axis[i] = glm::vec3(glm::linearRand(0.f, 1.f), glm::linearRand(0.f, 1.f), glm::linearRand(0.f, 1.f));
+	}
 
 	// Set initial values
 	Radial[0]["Position"] = R1;
@@ -118,18 +125,10 @@ void LagrangianController::Update(const GLfloat& dt)
 		Angular[i]["Position"] += Angular[i]["Velocity"] * dt;
 	}
 
-	//std::cout << "Rad Accel: " << rAcc << std::endl;
-	//std::cout << "Rad Vel: " << rVel << std::endl;
-	//std::cout << "Rad Pos: " << rPos << std::endl;
-
-	//std::cout << "Theta Accel: " << tAcc << std::endl;
-	//std::cout << "Theta Vel: " << tVel << std::endl;
-	//std::cout << "Theta Pos: " << tPos << std::endl;
-
 	for (GLuint i = 0; i < NUM_BODIES; i++)
 	{
 		glm::mat4 Model;
-		Model = glm::rotate(Model, Angular[i]["Position"], glm::vec3(0.f, -1.f, -1.f));
+		Model = glm::rotate(Model, Angular[i]["Position"], Axis[i]);
 		Model = glm::translate(Model, glm::vec3(Radial[i]["Position"], 0.f, 0.f));
 		Moons[i]->SetModel(Model);
 	}
